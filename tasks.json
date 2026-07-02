@@ -122,20 +122,6 @@
       "customer": "",
       "notes": "",
       "assignedTo": "nikita",
-      "id": "1782977903146",
-      "ownerId": "nikita",
-      "createdAt": "2026-07-02T07:38:23.146Z"
-    },
-    {
-      "name": "new",
-      "category": "preparation",
-      "priority": "medium",
-      "status": "todo",
-      "startDate": "2026-07-02",
-      "dueDate": "2026-07-02",
-      "customer": "",
-      "notes": "",
-      "assignedTo": "nikita",
       "id": "1782977903374",
       "ownerId": "nikita",
       "createdAt": "2026-07-02T07:38:23.374Z"
