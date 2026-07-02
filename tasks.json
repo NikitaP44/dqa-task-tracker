@@ -13,6 +13,20 @@
       "id": "1782977892799",
       "ownerId": "nikita",
       "createdAt": "2026-07-02T07:38:12.799Z"
+    },
+    {
+      "name": "Yusen- Milestones research",
+      "category": "preparation",
+      "priority": "medium",
+      "status": "inprogress",
+      "startDate": "2026-07-02",
+      "dueDate": "2026-07-02",
+      "customer": "AstraZeneca",
+      "notes": "check week 25, 26 shipments before call with PSAM",
+      "assignedTo": "nikita",
+      "id": "1782978052929",
+      "ownerId": "nikita",
+      "createdAt": "2026-07-02T07:40:52.929Z"
     }
   ],
   "jayesh": [],
