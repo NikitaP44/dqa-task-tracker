@@ -10,20 +10,6 @@
       "customer": "",
       "notes": "",
       "assignedTo": "nikita",
-      "id": "1782977884035",
-      "ownerId": "nikita",
-      "createdAt": "2026-07-02T07:38:04.035Z"
-    },
-    {
-      "name": "new",
-      "category": "report",
-      "priority": "medium",
-      "status": "todo",
-      "startDate": "",
-      "dueDate": "",
-      "customer": "",
-      "notes": "",
-      "assignedTo": "nikita",
       "id": "1782977885764",
       "ownerId": "nikita",
       "createdAt": "2026-07-02T07:38:05.764Z"
