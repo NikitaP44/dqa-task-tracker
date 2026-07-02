@@ -2,34 +2,6 @@
   "nikita": [
     {
       "name": "new",
-      "category": "report",
-      "priority": "medium",
-      "status": "todo",
-      "startDate": "",
-      "dueDate": "",
-      "customer": "",
-      "notes": "",
-      "assignedTo": "nikita",
-      "id": "1782977886542",
-      "ownerId": "nikita",
-      "createdAt": "2026-07-02T07:38:06.542Z"
-    },
-    {
-      "name": "new",
-      "category": "report",
-      "priority": "medium",
-      "status": "todo",
-      "startDate": "",
-      "dueDate": "",
-      "customer": "",
-      "notes": "",
-      "assignedTo": "nikita",
-      "id": "1782977886757",
-      "ownerId": "nikita",
-      "createdAt": "2026-07-02T07:38:06.757Z"
-    },
-    {
-      "name": "new",
       "category": "preparation",
       "priority": "medium",
       "status": "todo",
