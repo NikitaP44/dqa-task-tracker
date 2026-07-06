@@ -1,20 +1,6 @@
 {
   "nikita": [
     {
-      "name": "new",
-      "category": "preparation",
-      "priority": "medium",
-      "status": "todo",
-      "startDate": "",
-      "dueDate": "",
-      "customer": "",
-      "notes": "",
-      "assignedTo": "nikita",
-      "id": "1782977892799",
-      "ownerId": "nikita",
-      "createdAt": "2026-07-02T07:38:12.799Z"
-    },
-    {
       "name": "Yusen- Milestones research",
       "category": "preparation",
       "priority": "medium",
@@ -27,6 +13,20 @@
       "id": "1782978052929",
       "ownerId": "nikita",
       "createdAt": "2026-07-02T07:40:52.929Z"
+    },
+    {
+      "name": "Missing milestones Email generator",
+      "category": "outreaches",
+      "priority": "medium",
+      "status": "inprogress",
+      "startDate": "2026-07-06",
+      "dueDate": "2026-07-10",
+      "customer": "Eastman for FTL, Abbott for LTL",
+      "notes": "use RCA document, current email format and Email generator to create outreach email for Eastman mised milestones",
+      "assignedTo": "nikita",
+      "id": "1782977892799",
+      "ownerId": "nikita",
+      "createdAt": "2026-07-06T07:39:36.835Z"
     }
   ],
   "jayesh": [],
