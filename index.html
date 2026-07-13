@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DQA Task Tracker — Project44</title>
+<style id="ss">
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#07456B;--blue:#0072EC;--gold:#F8C622;--green:#05A550;--orange:#E98A2C;--red:#D93025;--bg:#EEF2F7;--white:#fff;--border:#DDE3EA;--text:#1A2B3C}
+body{font-family:Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+button,input,select,textarea{font-family:inherit;font-size:inherit}
+@keyframes slideIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:translateX(0)}}
+.toast{animation:slideIn .3s ease}
+::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-thumb{background:#c1cdd6;border-radius:3px}
+.card{background:var(--white);border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.09)}
+.stat-card{background:var(--white);border-radius:10px;padding:16px 18px;box-shadow:0 1px 4px rgba(0,0,0,.09);border-left:4px solid}
+.badge{display:inline-block;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:700}
+.nav-tab{padding:10px 22px;border:none;background:transparent;color:rgba(255,255,255,.65);font-weight:700;font-size:13px;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s}
+.nav-tab.active{color:#fff;border-bottom-color:var(--gold)}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:12px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.03em}
+.form-input{border:1.5px solid var(--border);border-radius:7px;padding:9px 12px;font-size:13px;outline:none;width:100%;transition:border-color .2s}
+.form-input:focus{border-color:var(--blue)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.task-card{background:var(--white);border-radius:8px;padding:12px 14px;margin-bottom:8px;border-left:4px solid;box-shadow:0 1px 3px rgba(0,0,0,.07);transition:box-shadow .2s}
+.task-card:hover{box-shadow:0 3px 10px rgba(0,0,0,.12)}
+.kanban-col{flex:1;min-width:280px;background:#E4ECF4;border-radius:10px;padding:12px}
+.k-header{font-size:13px;font-weight:700;padding:8px 12px;border-radius:7px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+.owner-lbl{font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.05em;padding:3px 8px;background:rgba(7,69,107,.1);border-radius:4px;margin-bottom:6px;display:inline-block}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:300;padding:16px}
+.modal{background:var(--white);border-radius:14px;padding:28px;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 64px rgba(0,0,0,.22)}
+.pbar{height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden;margin-top:5px}
+.pfill{height:100%;border-radius:4px;transition:width .6s}
+.cbar{height:10px;background:#e2e8f0;border-radius:5px;overflow:hidden;margin-top:4px}
+.cfill{height:100%;border-radius:5px;transition:width .6s}
+.sync-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+</style>
+</head>
+<body>
+<div id="toasts" style="position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;max-width:360px;pointer-events:none"></div>
+<div id="root"></div>
+<script id="sc">
+// ── CONSTANTS ─────────────────────────────────────────────────────────────
+const TEAM=['Nikita','Jayesh','Shashi'];
+const CAT=[
+  {id:'report',     label:'Report',            icon:'📊',color:'#0072EC'},
+  {id:'outreaches', label:'Outreaches',         icon:'📣',color:'#E98A2C'},
+  {id:'meeting',    label:'Meeting',            icon:'🤝',color:'#05A550'},
+  {id:'preparation',label:'Preparation',        icon:'📋',color:'#07456B'},
+  {id:'escalation', label:'Support Escalation', icon:'🚨',color:'#D93025'},
+  {id:'tools',      label:'Tools Training',     icon:'🛠️',color:'#8b5cf6'},
+  {id:'skill',      label:'Skill Development',  icon:'📚',color:'#06b6d4'},
+  {id:'adhoc',      label:'Adhoc',              icon:'⚡',color:'#d97706'},
+];
+const STS=[
+  {id:'todo',      label:'Yet to Start',color:'#64748b',bg:'#f1f5f9'},
+  {id:'inprogress',label:'In Progress', color:'#E98A2C',bg:'#fff7ed'},
+  {id:'completed', label:'Completed',   color:'#05A550',bg:'#f0fdf4'},
+];
+const PRI=[
+  {id:'high',  label:'High',  color:'#D93025'},
+  {id:'medium',label:'Medium',color:'#E98A2C'},
+  {id:'low',   label:'Low',   color:'#05A550'},
+];
+const GH='https://api.github.com';
+
+// ── STATE ─────────────────────────────────────────────────────────────────
+let cfg   = lsLoad('dqa_cfg',{owner:'',repo:'',pat:'',user:'Nikita'});
+let tasks = [];
+let sha   = null;
+let sync  = 'idle'; // idle|loading|saving|ok|error
+let view  = 'my';   // my|board|dash
+let fSt='all', fCat='all';
+let showForm=false, editId=null, adhocMode=false;
+let toastArr=[], notified=new Set(), now=new Date();
+
+// ── HELPERS ───────────────────────────────────────────────────────────────
+function lsLoad(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}}
+function lsSave(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function fd(d){return d?new Date(d).toLocaleDateString('en-IN',{day:'numeric',month:'short'}):''}
+function fdt(d,t){return d?fd(d)+(t?' '+t:''):''}
+function gc(id){return CAT.find(c=>c.id===id)||CAT[0];}
+function gs(id){return STS.find(s=>s.id===id)||STS[0];}
+function gp(id){return PRI.find(p=>p.id===id)||PRI[1];}
+function isDis(t){return t.status==='todo'&&t.startDate&&now>new Date(t.startDate+(t.startTime?'T'+t.startTime:'T00:00'));}
+function isOv(t){return t.status!=='completed'&&t.dueDate&&now>new Date(t.dueDate+(t.dueTime?'T'+t.dueTime:'T23:59'));}
+function pct(n,d){return d?Math.round((n/d)*100):0;}
+
+// ── GITHUB API ────────────────────────────────────────────────────────────
+async function ghFetch(path,opts={}){
+  return fetch(GH+path,{...opts,headers:{'Authorization':'token '+cfg.pat,'Content-Type':'application/json',...(opts.headers||{})}});
+}
+async function loadTasks(){
+  if(!cfg.pat){tasks=lsLoad('dqa_tasks',[]);render();return;}
+  sync='loading';render();
+  try{
+    const r=await ghFetch('/repos/'+cfg.owner+'/'+cfg.repo+'/contents/tasks.json');
+    if(r.status===404){tasks=[];sha=null;}
+    else if(!r.ok){throw new Error('HTTP '+r.status);}
+    else{const d=await r.json();sha=d.sha;tasks=JSON.parse(atob(d.content.replace(/\n/g,'')));}
+    sync='ok';
+  }catch(e){sync='error';showErrToast('❌ Could not load from GitHub: '+e.message);tasks=lsLoad('dqa_tasks',[]);}
+  render();
+}
+async function saveTasks(){
+  lsSave('dqa_tasks',tasks);
+  if(!cfg.pat){showSaveToast();render();return;}
+  sync='saving';render();
+  try{
+    const body={message:'Update tasks — '+cfg.user+' — '+new Date().toLocaleString('en-IN'),content:btoa(unescape(encodeURIComponent(JSON.stringify(tasks,null,2))))};
+    if(sha)body.sha=sha;
+    const r=await ghFetch('/repos/'+cfg.owner+'/'+cfg.repo+'/contents/tasks.json',{method:'PUT',body:JSON.stringify(body)});
+    if(r.ok){const d=await r.json();sha=d.content.sha;sync='ok';showSaveToast();}
+    else{sync='error';showErrToast('❌ GitHub save failed — check PAT permissions.');}
+  }catch(e){sync='error';showErrToast('❌ Network error: '+e.message);}
+  render();
+}
+
+// ── TOASTS ────────────────────────────────────────────────────────────────
+function showSaveToast(){
+  toastArr=toastArr.filter(x=>x.type!=='saved');
+  const aid=Date.now();toastArr.push({aid,type:'saved',msg:'✅ Saved to GitHub'});renderToasts();
+  setTimeout(()=>{toastArr=toastArr.filter(x=>x.aid!==aid);renderToasts();},2500);
+}
+function showErrToast(msg){
+  const aid=Date.now()+Math.random();toastArr.push({aid,type:'error',msg});renderToasts();
+  setTimeout(()=>{toastArr=toastArr.filter(x=>x.aid!==aid);renderToasts();},6000);
+}
+function pushAlertToast(id,type,msg){
+  const k=id+'_'+type;if(notified.has(k))return false;notified.add(k);
+  const aid=Date.now()+Math.random();toastArr.push({aid,type,msg});renderToasts();
+  setTimeout(()=>{toastArr=toastArr.filter(x=>x.aid!==aid);renderToasts();},9000);
+  return true;
+}
+function renderToasts(){
+  const b=document.getElementById('toasts');if(!b)return;
+  const bg={saved:'#dcfce7',disrupted:'#fef9c3',overdue:'#fee2e2',error:'#fee2e2'};
+  const br={saved:'#86efac',disrupted:'#fde047',overdue:'#fca5a5',error:'#fca5a5'};
+  b.innerHTML=toastArr.map(a=>`<div class="toast" style="background:${bg[a.type]||'#fee2e2'};border:1.5px solid ${br[a.type]||'#fca5a5'};border-radius:10px;padding:12px 14px;box-shadow:0 4px 16px rgba(0,0,0,.12);font-size:13px;font-weight:500;display:flex;justify-content:space-between;gap:8px;pointer-events:all"><span>${esc(a.msg)}</span><button data-action="dimToast" data-aid="${a.aid}" style="border:none;background:transparent;cursor:pointer;font-size:14px;color:#64748b;padding:0">✕</button></div>`).join('');
+}
+
+// ── NOTIFICATIONS ─────────────────────────────────────────────────────────
+function fireBrowser(title,body,tag){if('Notification' in window&&Notification.permission==='granted'){try{new Notification(title,{body,tag});}catch{}}}
+function checkAlerts(){
+  tasks.filter(t=>!t.owner||t.owner===cfg.user).forEach(t=>{
+    if(isDis(t)&&pushAlertToast(t.id,'disrupted','⚠️ Not Started: '+t.title))fireBrowser('⚠️ Task Not Started',t.title+' — planned to start '+fdt(t.startDate,t.startTime),'d_'+t.id);
+    if(isOv(t)&&pushAlertToast(t.id,'overdue','🔴 Overdue: '+t.title))fireBrowser('🔴 Task Overdue',t.title+' — was due '+fdt(t.dueDate,t.dueTime),'o_'+t.id);
+  });
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────
+function saveTask(){
+  const title=(document.getElementById('fm-title')?.value||'').trim();
+  if(!title){showErrToast('⚠️ Please enter a task title.');return;}
+  const prev=editId?tasks.find(t=>t.id===editId):null;
+  const task={
+    id:editId||String(Date.now()),
+    title,
+    category: document.getElementById('fm-cat')?.value    ||'adhoc',
+    priority: document.getElementById('fm-pri')?.value    ||'medium',
+    status:   document.getElementById('fm-status')?.value ||'todo',
+    owner:    document.getElementById('fm-owner')?.value  ||cfg.user,
+    startDate:document.getElementById('fm-sdate')?.value  ||'',
+    startTime:document.getElementById('fm-stime')?.value  ||'',
+    dueDate:  document.getElementById('fm-ddate')?.value  ||'',
+    dueTime:  document.getElementById('fm-dtime')?.value  ||'',
+    notes:    document.getElementById('fm-notes')?.value  ||'',
+    createdAt:prev?.createdAt||new Date().toISOString(),
+    updatedAt:new Date().toISOString()
+  };
+  if(editId){['disrupted','overdue'].forEach(x=>notified.delete(editId+'_'+x));tasks=tasks.map(t=>t.id===editId?task:t);}
+  else tasks.push(task);
+  editId=null;showForm=false;adhocMode=false;
+  saveTasks();render();
+}
+function updSt(id,status){
+  ['disrupted','overdue'].forEach(x=>notified.delete(id+'_'+x));
+  tasks=tasks.map(t=>t.id===id?{...t,status,updatedAt:new Date().toISOString()}:t);
+  saveTasks();render();
+}
+function delTask(id){if(!confirm('Delete this task?'))return;tasks=tasks.filter(t=>t.id!==id);saveTasks();render();}
+function editTask(id){const t=tasks.find(x=>x.id===id);if(!t)return;editId=id;adhocMode=false;showForm=true;render();}
+function saveConfig(){
+  cfg={
+    owner:(document.getElementById('cfg-owner')?.value||'').trim(),
+    repo: (document.getElementById('cfg-repo')?.value||'').trim(),
+    pat:  (document.getElementById('cfg-pat')?.value||'').trim(),
+    user: document.getElementById('cfg-user')?.value||'Nikita'
+  };
+  if(!cfg.user){showErrToast('⚠️ Please select your name.');return;}
+  lsSave('dqa_cfg',cfg);loadTasks();
+}
+
+// ── CHARTS ────────────────────────────────────────────────────────────────
+function donut(segs,size=108){
+  const total=segs.reduce((a,b)=>a+b.v,0);
+  if(!total)return`<div style="width:${size}px;height:${size}px;border-radius:50%;background:#e2e8f0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#94a3b8">No data</div>`;
+  let cum=0;
+  const parts=segs.filter(s=>s.v>0).map(s=>{const p=(s.v/total)*100;const str=s.c+' '+cum.toFixed(2)+'% '+(cum+p).toFixed(2)+'%';cum+=p;return str;});
+  return`<div style="position:relative;width:${size}px;height:${size}px;flex-shrink:0">
+    <div style="width:${size}px;height:${size}px;border-radius:50%;background:conic-gradient(${parts.join(',')})"></div>
+    <div style="position:absolute;inset:${Math.round(size*.22)}px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:var(--navy)">${total}</div>
+  </div>`;
+}
+function hBars(items,maxV){
+  return items.map(d=>`<div style="margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px">
+      <span>${esc(d.label)}</span><span style="font-weight:700;color:${d.color||'var(--navy)'}">${d.value}</span>
+    </div>
+    <div class="cbar"><div class="cfill" style="width:${maxV?pct(d.value,maxV):0}%;background:${d.color||'var(--blue)'}"></div></div>
+  </div>`).join('');
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function render(){
+  const root=document.getElementById('root');if(!root)return;
+  if(!cfg.user||(!cfg.pat&&!lsLoad('dqa_tasks',null)&&tasks.length===0&&!cfg._setup)){
+    root.innerHTML=renderSetup();return;
+  }
+  root.innerHTML=renderApp();
+  renderToasts();
+}
+
+function renderSetup(){
+  return`<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,var(--navy),var(--blue));padding:20px">
+    <div class="card" style="width:100%;max-width:440px;padding:36px">
+      <div style="text-align:center;margin-bottom:28px">
+        <div style="font-size:36px;margin-bottom:8px">📌</div>
+        <h1 style="font-size:22px;font-weight:700;color:var(--navy)">DQA Task Tracker</h1>
+        <p style="font-size:13px;color:#64748b;margin-top:4px">Project44 · Managed Services India</p>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="form-group">
+          <label class="form-label">Your Name</label>
+          <select id="cfg-user" class="form-input">
+            ${TEAM.map(t=>`<option value="${t}" ${cfg.user===t?'selected':''}>${t}</option>`).join('')}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">GitHub Owner (username)</label>
+          <input id="cfg-owner" class="form-input" value="${esc(cfg.owner)}" placeholder="e.g. NikitaP44"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Repository Name</label>
+          <input id="cfg-repo" class="form-input" value="${esc(cfg.repo)}" placeholder="e.g. dqa-task-tracker"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">GitHub Personal Access Token</label>
+          <input id="cfg-pat" type="password" class="form-input" value="${esc(cfg.pat)}" placeholder="ghp_..."/>
+          <span style="font-size:11px;color:#94a3b8">Needs repo Contents read + write permission</span>
+        </div>
+        <button data-action="saveConfig" style="background:var(--blue);color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;width:100%;margin-top:4px">Connect to GitHub →</button>
+        <button data-action="localMode" style="background:transparent;color:#94a3b8;border:1.5px solid var(--border);border-radius:8px;padding:10px;font-size:13px;cursor:pointer;width:100%">Use locally (no GitHub)</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderApp(){
+  const today=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  const sc={idle:'#94a3b8',loading:'#E98A2C',saving:'#E98A2C',ok:'#05A550',error:'#D93025'}[sync];
+  const sl={idle:'Ready',loading:'Loading…',saving:'Saving…',ok:'Synced',error:'Sync Error'}[sync];
+  const np='Notification' in window?Notification.permission:'denied';
+  let content='';
+  if(view==='my')    content=renderMyTasks();
+  else if(view==='board') content=renderTeamBoard();
+  else               content=renderDashboard();
+  return`<div style="min-height:100vh;display:flex;flex-direction:column">
+  <div style="background:var(--navy);color:#fff">
+    <div style="max-width:1280px;margin:0 auto;padding:0 20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 0;border-bottom:1px solid rgba(255,255,255,.12);flex-wrap:wrap;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="font-size:22px">📌</span>
+          <div><div style="font-size:15px;font-weight:700">DQA Task Tracker</div><div style="font-size:11px;opacity:.65">Project44 · Managed Services India</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+          <span style="font-size:12px;display:flex;align-items:center;gap:5px"><span class="sync-dot" style="background:${sc}"></span>${sl}</span>
+          <span style="font-size:11px;opacity:.6">${today}</span>
+          ${np!=='granted'?`<button data-action="enBrowser" style="background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:6px;padding:6px 11px;font-size:12px;cursor:pointer">🔔 Enable Alerts</button>`:`<span style="font-size:12px;color:#86efac;background:rgba(34,197,94,.2);border-radius:6px;padding:5px 10px">🔔 Alerts ON</span>`}
+          <button data-action="refreshTasks" style="background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:6px;padding:6px 11px;font-size:12px;cursor:pointer">🔄 Refresh</button>
+          <button data-action="openAdd"   style="background:var(--blue);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-weight:700;font-size:13px;cursor:pointer">+ Add Task</button>
+          <button data-action="openAdhoc" style="background:var(--orange);color:#fff;border:none;border-radius:7px;padding:7px 14px;font-weight:700;font-size:13px;cursor:pointer">⚡ Adhoc</button>
+          <button data-action="dlHTML"    style="background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.25);border-radius:6px;padding:6px 11px;font-size:12px;cursor:pointer">⬇️ Download</button>
+          <button data-action="resetCfg"  style="background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:6px;padding:6px 11px;font-size:12px;cursor:pointer">👤 ${esc(cfg.user)}</button>
+        </div>
+      </div>
+      <div style="display:flex;gap:0">
+        <button data-action="setView" data-view="my"    class="nav-tab ${view==='my'?'active':''}">📋 My Tasks</button>
+        <button data-action="setView" data-view="board" class="nav-tab ${view==='board'?'active':''}">📌 Team Board</button>
+        <button data-action="setView" data-view="dash"  class="nav-tab ${view==='dash'?'active':''}">📊 Manager Dashboard</button>
+      </div>
+    </div>
+  </div>
+  <div style="flex:1;max-width:1280px;width:100%;margin:0 auto;padding:20px">
+    ${content}
+  </div>
+  ${showForm?renderForm():''}
+</div>`;
+}
+
+// ── MY TASKS ──────────────────────────────────────────────────────────────
+function renderMyTasks(){
+  const mine=tasks.filter(t=>!t.owner||t.owner===cfg.user);
+  const fil=mine.filter(t=>(fSt==='all'||t.status===fSt)&&(fCat==='all'||t.category===fCat))
+    .sort((a,b)=>{const po={high:0,medium:1,low:2};if(isDis(a)!==isDis(b))return isDis(a)?-1:1;if(isOv(a)!==isOv(b))return isOv(a)?-1:1;return po[a.priority]-po[b.priority];});
+  const cnt=STS.reduce((a,s)=>{a[s.id]=mine.filter(t=>t.status===s.id).length;return a;},{});
+  const ovC=mine.filter(isOv).length,disC=mine.filter(isDis).length;
+  return`
+    <div style="display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap">
+      ${[['Yet to Start',cnt.todo,'#64748b','#f1f5f9'],['In Progress',cnt.inprogress,'var(--orange)','#fff7ed'],['Completed',cnt.completed,'var(--green)','#f0fdf4'],['Overdue',ovC,'var(--red)','#fff1f0'],['Disrupted',disC,'#92400e','#fef9c3']].map(([l,v,c,bg])=>`
+    <div class="stat-card" style="border-color:${c};background:${bg};flex:1;min-width:120px">
+      <div style="font-size:24px;font-weight:800;color:${c}">${v}</div>
+      <div style="font-size:12px;color:#64748b;margin-top:2px">${l}</div>
+    </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+      <select data-filter="status" style="border:1.5px solid var(--border);border-radius:7px;padding:7px 12px;font-size:13px;background:#fff;cursor:pointer">
+        <option value="all" ${fSt==='all'?'selected':''}>All Statuses</option>
+        ${STS.map(s=>`<option value="${s.id}" ${fSt===s.id?'selected':''}>${s.label}</option>`).join('')}
+      </select>
+      <select data-filter="cat" style="border:1.5px solid var(--border);border-radius:7px;padding:7px 12px;font-size:13px;background:#fff;cursor:pointer">
+        <option value="all" ${fCat==='all'?'selected':''}>All Categories</option>
+        ${CAT.map(c=>`<option value="${c.id}" ${fCat===c.id?'selected':''}>${c.icon} ${c.label}</option>`).join('')}
+      </select>
+      ${(fSt!=='all'||fCat!=='all')?`<button data-action="clearFilters" style="border:1.5px solid var(--border);border-radius:7px;padding:7px 12px;font-size:13px;background:#fff;cursor:pointer;color:#64748b">✕ Clear</button>`:''}
+    </div>
+    ${fil.length===0?`<div style="text-align:center;padding:60px 0;color:#94a3b8"><div style="font-size:42px;margin-bottom:12px">📭</div><div>No tasks found</div></div>`:fil.map(t=>taskCard(t,true)).join('')}`;
+}
+
+// ── TASK CARD ─────────────────────────────────────────────────────────────
+function taskCard(t,showStSel=true){
+  const cat=gc(t.category),st=gs(t.status),pr=gp(t.priority),ov=isOv(t),dis=isDis(t);
+  return`<div class="task-card" style="border-left-color:${dis?'#eab308':ov?'var(--red)':cat.color};background:${dis?'#fefce8':t.status==='completed'?'#f8fafc':'#fff'};opacity:${t.status==='completed'?.72:1}">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:6px">
+          <span>${cat.icon}</span>
+          <span style="font-weight:700;font-size:14px;text-decoration:${t.status==='completed'?'line-through':'none'};color:${t.status==='completed'?'#94a3b8':'var(--text)'}">${esc(t.title)}</span>
+        </div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">
+          <span class="badge" style="color:${cat.color};background:${cat.color}18">${cat.label}</span>
+          <span class="badge" style="color:${pr.color};background:${pr.color}18">● ${pr.label}</span>
+          ${t.owner?`<span class="badge" style="color:var(--navy);background:rgba(7,69,107,.09)">👤 ${esc(t.owner)}</span>`:''}
+          ${dis?`<span class="badge" style="color:#854d0e;background:#fef08a;border:1px solid #fde047">⚠️ DISRUPTED</span>`:''}
+          ${ov?`<span class="badge" style="color:#991b1b;background:#fee2e2;border:1px solid #fca5a5">🔴 OVERDUE</span>`:''}
+          ${t.startDate?`<span style="font-size:11px;color:${dis?'#854d0e':'#64748b'}">🟢 ${fdt(t.startDate,t.startTime)}</span>`:''}
+          ${t.dueDate?`<span style="font-size:11px;color:${ov?'var(--red)':'#64748b'}">📅 ${fdt(t.dueDate,t.dueTime)}</span>`:''}
+        </div>
+        ${t.notes?`<div style="font-size:12px;color:#64748b;margin-top:5px;font-style:italic">📝 ${esc(t.notes)}</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+        ${showStSel?`<select data-action="updSt" data-id="${t.id}" style="border:1.5px solid ${st.color}40;border-radius:6px;padding:5px 9px;font-size:12px;font-weight:700;background:${st.bg};color:${st.color};cursor:pointer;outline:none;min-width:126px">
+          ${STS.map(s=>`<option value="${s.id}" ${t.status===s.id?'selected':''}>${s.label}</option>`).join('')}
+        </select>`:''}
+        <div style="display:flex;gap:5px">
+          <button data-action="editTask" data-id="${t.id}" style="border:1.5px solid var(--border);border-radius:5px;padding:4px 9px;font-size:12px;background:#fff;cursor:pointer;color:#475569">✏️</button>
+          <button data-action="delTask"  data-id="${t.id}" style="border:1.5px solid #fee2e2;border-radius:5px;padding:4px 9px;font-size:12px;background:#fff;cursor:pointer;color:var(--red)">🗑️</button>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── TEAM BOARD ────────────────────────────────────────────────────────────
+function renderTeamBoard(){
+  const hBg={todo:'#4B5563',inprogress:'#E98A2C',completed:'#05A550'};
+  return`<div style="display:flex;gap:14px;align-items:flex-start;overflow-x:auto;padding-bottom:8px">
+    ${STS.map(st=>{
+      const colTasks=tasks.filter(t=>t.status===st.id);
+      return`<div class="kanban-col">
+        <div class="k-header" style="background:${hBg[st.id]};color:#fff">
+          <span>${st.label}</span>
+          <span style="background:rgba(255,255,255,.22);border-radius:20px;padding:2px 10px;font-size:12px">${colTasks.length}</span>
+        </div>
+        ${TEAM.map(member=>{
+          const mt=colTasks.filter(t=>t.owner===member);
+          if(!mt.length)return'';
+          return`<div style="margin-bottom:10px">
+            <div class="owner-lbl">👤 ${member}</div>
+            ${mt.map(t=>taskCard(t,false)).join('')}
+          </div>`;
+        }).join('')}
+        ${colTasks.filter(t=>!t.owner||!TEAM.includes(t.owner)).map(t=>taskCard(t,false)).join('')}
+        ${colTasks.length===0?`<div style="text-align:center;padding:24px;color:#94a3b8;font-size:13px">No tasks</div>`:''}
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+// ── MANAGER DASHBOARD ─────────────────────────────────────────────────────
+function renderDashboard(){
+  const total=tasks.length,done=tasks.filter(t=>t.status==='completed').length;
+  const inP=tasks.filter(t=>t.status==='inprogress').length;
+  const todo=tasks.filter(t=>t.status==='todo').length;
+  const ovC=tasks.filter(isOv).length,disC=tasks.filter(isDis).length;
+  const stSegs=[{v:todo,c:'#64748b'},{v:inP,c:'#E98A2C'},{v:done,c:'#05A550'}];
+  const prSegs=[{v:tasks.filter(t=>t.priority==='high').length,c:'#D93025'},{v:tasks.filter(t=>t.priority==='medium').length,c:'#E98A2C'},{v:tasks.filter(t=>t.priority==='low').length,c:'#05A550'}];
+  const teamStats=TEAM.map(m=>{
+    const mt=tasks.filter(t=>t.owner===m);
+    return{name:m,total:mt.length,done:mt.filter(t=>t.status==='completed').length,inP:mt.filter(t=>t.status==='inprogress').length,todo:mt.filter(t=>t.status==='todo').length,ov:mt.filter(isOv).length,dis:mt.filter(isDis).length};
+  });
+  const catBars=CAT.map(c=>({label:c.icon+' '+c.label,value:tasks.filter(t=>t.category===c.id).length,color:c.color})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
+  const maxCat=Math.max(...catBars.map(x=>x.value),1);
+  const atRisk=tasks.filter(t=>isOv(t)||isDis(t)).sort((a,b)=>(isOv(b)?1:0)-(isOv(a)?1:0));
+
+  return`
+  <!-- Summary Stat Cards -->
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px">
+    ${[['Total Tasks',total,'var(--blue)','#eff6ff'],['Completed',done,'var(--green)','#f0fdf4'],['In Progress',inP,'var(--orange)','#fff7ed'],['Yet to Start',todo,'#64748b','#f1f5f9'],['Overdue',ovC,'var(--red)','#fff1f0'],['Disrupted',disC,'#92400e','#fef9c3']].map(([l,v,c,bg])=>`
+    <div class="stat-card" style="border-color:${c};background:${bg}">
+      <div style="font-size:28px;font-weight:800;color:${c}">${v}</div>
+      <div style="font-size:12px;color:#64748b;margin-top:2px">${l}</div>
+      ${l==='Completed'&&total?`<div style="font-size:11px;font-weight:700;color:${c};margin-top:4px">${pct(v,total)}% completion rate</div>`:'' }
+    </div>`).join('')}
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <!-- Team Performance -->
+    <div class="card" style="padding:20px">
+      <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:18px;border-bottom:2px solid var(--gold);padding-bottom:8px">👥 Team Performance</div>
+      ${teamStats.map(m=>`
+        <div style="margin-bottom:18px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px">
+            <span style="font-weight:700;font-size:13px;color:var(--navy)">👤 ${m.name}</span>
+            <div style="display:flex;gap:5px">
+              ${m.ov>0?`<span class="badge" style="color:var(--red);background:#fee2e2">${m.ov} overdue</span>`:''}
+              ${m.dis>0?`<span class="badge" style="color:#854d0e;background:#fef08a">${m.dis} disrupted</span>`:''}
+              ${m.ov===0&&m.dis===0&&m.total>0?`<span class="badge" style="color:var(--green);background:#f0fdf4">✅ On track</span>`:''}
+            </div>
+          </div>
+          <div style="display:flex;gap:14px;font-size:12px;color:#64748b;margin-bottom:7px">
+            <span>Total: <strong style="color:var(--text)">${m.total}</strong></span>
+            <span>Done: <strong style="color:var(--green)">${m.done}</strong></span>
+            <span>In Progress: <strong style="color:var(--orange)">${m.inP}</strong></span>
+            <span>Rate: <strong style="color:var(--navy)">${pct(m.done,m.total)}%</strong></span>
+          </div>
+          <div class="pbar"><div class="pfill" style="width:${pct(m.done,m.total)}%;background:${m.ov>0?'var(--red)':m.dis>0?'var(--orange)':'var(--green)'}"></div></div>
+          <div style="display:flex;gap:5px;margin-top:7px;flex-wrap:wrap">
+            ${STS.map(s=>{const c=tasks.filter(t=>t.owner===m.name&&t.status===s.id).length;return c>0?`<span style="font-size:11px;color:${s.color};background:${s.bg};padding:2px 8px;border-radius:4px;font-weight:600">${s.label}: ${c}</span>`:''}).join('')}
+          </div>
+        </div>`).join('')}
+    </div>
+
+    <!-- Charts Column -->
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <!-- Status Donut -->
+      <div class="card" style="padding:18px">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px;border-bottom:2px solid var(--gold);padding-bottom:7px">📊 Tasks by Status</div>
+        <div style="display:flex;gap:18px;align-items:center">
+          ${donut(stSegs)}
+          <div style="flex:1">
+            ${STS.map((s,i)=>`<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:9px;align-items:center">
+              <span style="display:flex;align-items:center;gap:7px"><span style="width:10px;height:10px;border-radius:2px;background:${stSegs[i].c};display:inline-block"></span>${s.label}</span>
+              <span style="font-weight:700;color:${stSegs[i].c}">${stSegs[i].v}</span>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <!-- Priority Donut -->
+      <div class="card" style="padding:18px">
+        <div style="font-size:13px;font-weight:700;color:var(--navy);margin-bottom:14px;border-bottom:2px solid var(--gold);padding-bottom:7px">🎯 Tasks by Priority</div>
+        <div style="display:flex;gap:18px;align-items:center">
+          ${donut(prSegs)}
+          <div style="flex:1">
+            ${PRI.map((p,i)=>`<div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:9px;align-items:center">
+              <span style="display:flex;align-items:center;gap:7px"><span style="width:10px;height:10px;border-radius:2px;background:${prSegs[i].c};display:inline-block"></span>${p.label}</span>
+              <span style="font-weight:700;color:${prSegs[i].c}">${prSegs[i].v}</span>
+            </div>`).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <!-- Category Bars -->
+    <div class="card" style="padding:20px">
+      <div style="font-size:14px;font-weight:700;color:var(--navy);margin-bottom:16px;border-bottom:2px solid var(--gold);padding-bottom:8px">📁 Tasks by Category</div>
+      ${catBars.length?hBars(catBars,maxCat):`<div style="color:#94a3b8;font-size:13px;text-align:center;padding:20px">No tasks yet</div>`}
+    </div>
+
+    <!-- At-Risk -->
+    <div class="card" style="padding:20px">
+      <div style="font-size:14px;font-weight:700;color:var(--red);margin-bottom:16px;border-bottom:2px solid var(--gold);padding-bottom:8px">⚠️ At-Risk Tasks (${atRisk.length})</div>
+      ${atRisk.length===0
+        ?`<div style="text-align:center;padding:30px;color:var(--green);font-size:13px;font-weight:700">✅ No at-risk tasks — all on track!</div>`
+        :atRisk.slice(0,8).map(t=>`<div style="padding:10px 0;border-bottom:1px solid var(--border)">
+            <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:5px">${esc(t.title)}</div>
+            <div style="display:flex;gap:5px;flex-wrap:wrap">
+              <span class="badge" style="color:${gc(t.category).color};background:${gc(t.category).color}18">${gc(t.category).label}</span>
+              ${t.owner?`<span class="badge" style="color:var(--navy);background:rgba(7,69,107,.09)">👤 ${esc(t.owner)}</span>`:''}
+              ${isOv(t)?`<span class="badge" style="color:#991b1b;background:#fee2e2">🔴 OVERDUE</span>`:''}
+              ${isDis(t)?`<span class="badge" style="color:#854d0e;background:#fef08a">⚠️ DISRUPTED</span>`:''}
+              ${t.dueDate?`<span style="font-size:11px;color:var(--red)">📅 Due: ${fdt(t.dueDate,t.dueTime)}</span>`:''}
+            </div>
+          </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// ── TASK FORM ─────────────────────────────────────────────────────────────
+function renderForm(){
+  const t=editId?tasks.find(x=>x.id===editId):null;
+  const defOwner=t?.owner||cfg.user;
+  return`<div data-overlay="form" class="modal-bg">
+    <div class="modal">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+        <h2 style="margin:0;font-size:17px;font-weight:700;color:var(--navy)">${adhocMode?'⚡ Add Adhoc Task':t?'✏️ Edit Task':'➕ Add Task'}</h2>
+        <button data-action="closeForm" style="border:none;background:#f1f5f9;border-radius:6px;padding:4px 10px;cursor:pointer;font-size:16px">✕</button>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="form-group">
+          <label class="form-label">Task Title *</label>
+          <input id="fm-title" class="form-input" value="${esc(t?.title||'')}" placeholder="What needs to be done?"/>
+        </div>
+        <div class="g2">
+          <div class="form-group">
+            <label class="form-label">Assigned To</label>
+            <select id="fm-owner" class="form-input">
+              ${TEAM.map(m=>`<option value="${m}" ${defOwner===m?'selected':''}>${m}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Category</label>
+            <select id="fm-cat" class="form-input">
+              ${CAT.map(c=>`<option value="${c.id}" ${(t?.category||'adhoc')===c.id?'selected':''}>${c.icon} ${c.label}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="g2">
+          <div class="form-group">
+            <label class="form-label">Priority</label>
+            <select id="fm-pri" class="form-input">
+              ${PRI.map(p=>`<option value="${p.id}" ${(t?.priority||'medium')===p.id?'selected':''}>${p.label}</option>`).join('')}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select id="fm-status" class="form-input">
+              ${STS.map(s=>`<option value="${s.id}" ${(t?.status||'todo')===s.id?'selected':''}>${s.label}</option>`).join('')}
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">🟢 Planned Start</label>
+          <div class="g2">
+            <input id="fm-sdate" type="date" class="form-input" value="${t?.startDate||''}"/>
+            <input id="fm-stime" type="time" class="form-input" value="${t?.startTime||''}"/>
+          </div>
+          <span style="font-size:11px;color:#94a3b8">Alert fires if not started on time ⚠️</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">📅 Due Date &amp; Time</label>
+          <div class="g2">
+            <input id="fm-ddate" type="date" class="form-input" value="${t?.dueDate||''}"/>
+            <input id="fm-dtime" type="time" class="form-input" value="${t?.dueTime||''}"/>
+          </div>
+          <span style="font-size:11px;color:#94a3b8">Alert fires if not completed on time 🔴</span>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notes (optional)</label>
+          <textarea id="fm-notes" class="form-input" rows="2" placeholder="Additional context…">${esc(t?.notes||'')}</textarea>
+        </div>
+        <button data-action="saveTask" style="background:${adhocMode?'var(--orange)':'var(--blue)'};color:#fff;border:none;border-radius:8px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;width:100%;margin-top:4px">
+          ${t?'💾 Save Changes':adhocMode?'⚡ Add Adhoc Task':'➕ Add Task'}
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// ── EVENT DELEGATION ──────────────────────────────────────────────────────
+document.addEventListener('click',function(e){
+  if(e.target.dataset.overlay==='form'){showForm=false;editId=null;adhocMode=false;render();return;}
+  const btn=e.target.closest('[data-action]');if(!btn)return;
+  const {action,id,view:v,aid}=btn.dataset;
+  switch(action){
+    case 'openAdd':      showForm=true;adhocMode=false;editId=null;render();break;
+    case 'openAdhoc':    showForm=true;adhocMode=true;editId=null;render();break;
+    case 'closeForm':    showForm=false;editId=null;adhocMode=false;render();break;
+    case 'saveTask':     saveTask();break;
+    case 'editTask':     editTask(id);break;
+    case 'delTask':      delTask(id);break;
+    case 'setView':      view=v;render();break;
+    case 'saveConfig':   saveConfig();break;
+    case 'localMode':    cfg.user=document.getElementById('cfg-user')?.value||'Nikita';cfg._setup=true;lsSave('dqa_cfg',cfg);tasks=lsLoad('dqa_tasks',[]);render();break;
+    case 'resetCfg':     if(confirm('Switch user or reconfigure GitHub?')){cfg={owner:'',repo:'',pat:'',user:'Nikita'};lsSave('dqa_cfg',cfg);render();}break;
+    case 'refreshTasks': loadTasks();break;
+    case 'clearFilters': fSt='all';fCat='all';render();break;
+    case 'enBrowser':    if('Notification' in window)Notification.requestPermission().then(()=>render());break;
+    case 'dlHTML':       dlHTML();break;
+    case 'dimToast':     toastArr=toastArr.filter(x=>String(x.aid)!==String(aid));renderToasts();break;
+  }
+});
+document.addEventListener('change',function(e){
+  const el=e.target;
+  if(el.dataset.filter==='status'){fSt=el.value;render();}
+  else if(el.dataset.filter==='cat'){fCat=el.value;render();}
+  else if(el.dataset.action==='updSt'){updSt(el.dataset.id,el.value);}
+});
+
+// ── DOWNLOAD ──────────────────────────────────────────────────────────────
+function dlHTML(){
+  const sty=document.getElementById('ss')?.textContent||'';
+  const scr=document.getElementById('sc')?.textContent||'';
+  const html='<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>DQA Task Tracker — Project44</title>\n<style id="ss">'+sty+'</style>\n</head>\n<body>\n<div id="toasts" style="position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px;max-width:360px;pointer-events:none"></div>\n<div id="root"></div>\n<script id="sc">'+scr+'<\/script>\n</body>\n</html>';
+  const blob=new Blob([html],{type:'text/html'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='DQA_TaskTracker.html';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+if(cfg.pat){loadTasks();}else{tasks=lsLoad('dqa_tasks',[]);render();}
+setInterval(()=>{now=new Date();checkAlerts();if(!showForm)render();},60000);
+</script>
+</body>
+</html>
