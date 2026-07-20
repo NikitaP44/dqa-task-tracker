@@ -9,127 +9,222 @@
 :root{
   --navy:#07456B;--navy-d:#051f32;--blue:#0072EC;--blue-d:#0058C7;
   --gold:#F8C622;--green:#05A550;--orange:#E98A2C;--red:#D93025;
-  --bg:#EDF2F7;--surf:#fff;--border:#DDE6EF;
-  --txt:#0D2137;--txt2:#4A6076;--txt3:#8FA4B8;
-  --sh-xs:0 1px 2px rgba(13,33,55,.06);
-  --sh-sm:0 1px 4px rgba(13,33,55,.08),0 2px 8px rgba(13,33,55,.04);
-  --sh-md:0 4px 16px rgba(13,33,55,.10),0 2px 6px rgba(13,33,55,.05);
-  --sh-lg:0 24px 64px rgba(13,33,55,.22),0 8px 24px rgba(13,33,55,.10);
-  --r4:4px;--r8:8px;--r12:12px;--r16:16px;
+  --bg:#F0F2F5;--surf:#FFFFFF;--border:#DDE3EA;
+  --txt:#172B4D;--txt2:#5E6C84;--txt3:#97A0AF;
+  --sh1:0 1px 3px rgba(9,30,66,.1),0 0 0 1px rgba(9,30,66,.04);
+  --sh2:0 4px 16px rgba(9,30,66,.14),0 0 0 1px rgba(9,30,66,.04);
+  --sh3:0 20px 60px rgba(9,30,66,.2);
+  --sb:220px;
 }
-body{font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+body{font-family:-apple-system,'Segoe UI',BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;font-size:14px;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font-family:inherit;font-size:inherit}
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-thumb{background:rgba(7,69,107,.18);border-radius:3px}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:rgba(9,30,66,.12);border-radius:2px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+@keyframes drawerIn{from{transform:translateX(100%)}to{transform:translateX(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideR{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
 
-/* ── Animations ── */
-@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes modalIn{from{opacity:0;transform:scale(.96) translateY(-8px)}to{opacity:1;transform:scale(1) translateY(0)}}
-@keyframes slideR{from{opacity:0;transform:translateX(32px)}to{opacity:1;transform:translateX(0)}}
-@keyframes pulseD{0%,100%{opacity:1}50%{opacity:.4}}
+/* ── Sidebar (JIRA-style) ── */
+.layout{display:flex;min-height:100vh}
+.sb{width:var(--sb);flex-shrink:0;background:#0747A6;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:200}
+.sb-logo{padding:14px 16px;display:flex;align-items:center;gap:9px;border-bottom:1px solid rgba(255,255,255,.1);background:#0052CC}
+.sb-icon{width:28px;height:28px;border-radius:6px;background:#0072EC;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.sb-sec{padding:10px 8px 4px;color:rgba(255,255,255,.45);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;padding-left:14px}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 14px;margin:1px 6px;border-radius:3px;color:rgba(255,255,255,.7);font-size:13px;cursor:pointer;border:none;background:transparent;transition:.12s;text-align:left;width:calc(100% - 12px)}
+.nav-item:hover{background:rgba(255,255,255,.08);color:#fff}
+.nav-item.on{background:rgba(255,255,255,.14);color:#fff;font-weight:600}
+.nav-badge{margin-left:auto;background:rgba(217,48,37,.85);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px}
+.sb-bottom{margin-top:auto;border-top:1px solid rgba(255,255,255,.1);padding:12px 10px}
+.sb-user{display:flex;align-items:center;gap:8px;padding:7px 6px;border-radius:3px;cursor:pointer;transition:.12s}
+.sb-user:hover{background:rgba(255,255,255,.08)}
+.av{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-weight:700;flex-shrink:0}
+.sync-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;display:inline-block}
 
-/* ── Stat Cards ── */
-.stat{background:var(--surf);border-radius:var(--r12);padding:18px 20px;box-shadow:var(--sh-sm);border-top:3px solid transparent;transition:box-shadow .2s,transform .2s;position:relative;overflow:hidden}
-.stat:hover{box-shadow:var(--sh-md);transform:translateY(-2px)}
-.stat-num{font-size:30px;font-weight:800;line-height:1;letter-spacing:-1px}
-.stat-lbl{font-size:11px;font-weight:700;color:var(--txt2);margin-top:5px;text-transform:uppercase;letter-spacing:.05em}
-
-/* ── Task Cards ── */
-.tc{background:var(--surf);border-radius:var(--r8);padding:14px 16px;margin-bottom:8px;border-left:3px solid;box-shadow:var(--sh-xs);transition:box-shadow .2s,transform .15s;animation:fadeUp .22s ease}
-.tc:hover{box-shadow:var(--sh-md);transform:translateY(-1px)}
-
-/* ── Chips/Badges ── */
-.chip{display:inline-flex;align-items:center;gap:3px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;line-height:1.4}
-.chip-alert{padding:3px 8px;border-radius:4px;font-size:11px;font-weight:700;border:1px solid}
-
-/* ── Nav Tabs ── */
-.ntab{padding:11px 22px;border:none;background:transparent;color:rgba(255,255,255,.55);font-weight:600;font-size:13px;cursor:pointer;border-bottom:3px solid transparent;transition:all .2s;letter-spacing:.01em}
-.ntab:hover{color:rgba(255,255,255,.88)}
-.ntab.on{color:#fff;border-bottom-color:var(--gold)}
-
-/* ── Buttons ── */
-.btn{display:inline-flex;align-items:center;gap:5px;border:none;border-radius:var(--r8);padding:8px 16px;font-weight:600;font-size:13px;cursor:pointer;transition:all .2s;white-space:nowrap;letter-spacing:.01em}
-.btn-p{background:linear-gradient(140deg,var(--blue),var(--blue-d));color:#fff;box-shadow:0 2px 8px rgba(0,114,236,.28)}
-.btn-p:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,114,236,.36)}
-.btn-o{background:linear-gradient(140deg,#f5a040,var(--orange));color:#fff;box-shadow:0 2px 8px rgba(233,138,44,.26)}
-.btn-o:hover{transform:translateY(-1px);box-shadow:0 4px 16px rgba(233,138,44,.34)}
-.btn-g{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.18);backdrop-filter:blur(4px)}
-.btn-g:hover{background:rgba(255,255,255,.18)}
-.btn-line{background:transparent;color:var(--txt2);border:1.5px solid var(--border)}
-.btn-line:hover{border-color:var(--blue);color:var(--blue);background:rgba(0,114,236,.04)}
+/* ── Shell ── */
+.content{margin-left:var(--sb);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:#0052CC;padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:44px;flex-shrink:0;position:sticky;top:0;z-index:100}
+.tb-btn{display:inline-flex;align-items:center;gap:5px;border:none;border-radius:3px;padding:6px 12px;font-weight:600;font-size:13px;cursor:pointer;transition:.12s;white-space:nowrap}
+.tb-btn-p{background:#0072EC;color:#fff}.tb-btn-p:hover{background:#0058C7}
+.tb-btn-o{background:#FF991F;color:#172B4D}.tb-btn-o:hover{background:#FF8B00}
+.tb-btn-g{background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2)}.tb-btn-g:hover{background:rgba(255,255,255,.2)}
 
 /* ── Inputs ── */
-.fi{width:100%;border:1.5px solid var(--border);border-radius:var(--r8);padding:10px 14px;font-size:13px;outline:none;transition:border .2s,box-shadow .2s;background:var(--surf);color:var(--txt)}
-.fi:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(0,114,236,.1)}
-.flbl{font-size:11px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;display:block}
+.fi{width:100%;border:2px solid var(--border);border-radius:3px;padding:8px 10px;font-size:14px;outline:none;transition:.1s;background:#fff;color:var(--txt)}
+.fi:focus{border-color:var(--blue);background:#fff}
+.fi:hover:not(:focus){border-color:#B3BAC5}
+.flbl{font-size:12px;font-weight:600;color:var(--txt2);margin-bottom:4px;display:block}
+.fg{display:flex;flex-direction:column;gap:4px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 
-/* ── Kanban ── */
-.kcol{flex:1;min-width:268px;background:rgba(7,69,107,.05);border:1.5px solid rgba(7,69,107,.09);border-radius:var(--r12);padding:12px}
-.khdr{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-radius:var(--r8);margin-bottom:12px;font-size:12px;font-weight:700;color:#fff;letter-spacing:.02em;text-transform:uppercase}
+/* ════════════════════════════
+   1. MY TASKS — SharePoint list
+   ════════════════════════════ */
+.sp-tile{background:#fff;border:none;border-top:3px solid;padding:14px 16px;transition:box-shadow .1s}
+.sp-tile:hover{box-shadow:var(--sh2)}
+.sp-tile-num{font-size:26px;font-weight:700;letter-spacing:-1px;line-height:1}
+.sp-cmd{display:flex;align-items:center;padding:5px 12px;border-bottom:1px solid var(--border);gap:2px;min-height:40px;background:#fff}
+.sp-cmd-btn{display:inline-flex;align-items:center;gap:4px;padding:6px 9px;border:none;background:transparent;font-size:13px;color:var(--txt);cursor:pointer;transition:.1s;border-radius:2px;white-space:nowrap}
+.sp-cmd-btn:hover{background:#F4F5F7}
+.sp-cmd-sep{width:1px;height:18px;background:var(--border);margin:0 3px;flex-shrink:0}
+.sp-pivot{display:flex;gap:0;border-bottom:1px solid var(--border);background:#fff}
+.sp-tab{padding:9px 16px;border:none;background:transparent;font-size:14px;color:var(--txt2);cursor:pointer;border-bottom:2px solid transparent;transition:.1s;margin-bottom:-1px}
+.sp-tab:hover{color:var(--txt);background:#F4F5F7}
+.sp-tab.on{color:var(--blue);border-bottom-color:var(--blue);font-weight:600}
+.sp-tab-cnt{font-size:10px;background:#DFE1E6;color:var(--txt2);border-radius:10px;padding:1px 6px;margin-left:4px;font-weight:600}
+.sp-tab.on .sp-tab-cnt{background:#DEEBFF;color:var(--blue)}
+/* Quick add bar */
+.qa-bar{display:flex;align-items:center;gap:8px;padding:7px 12px;background:#DEEBFF;border-bottom:1px solid #B3D4FF}
+.qa-input{flex:1;border:2px solid #B3D4FF;border-radius:3px;padding:6px 10px;font-size:13px;outline:none;background:#fff;color:var(--txt)}
+.qa-input:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(0,114,236,.15)}
+.qa-sel{border:2px solid var(--border);border-radius:3px;padding:5px 8px;font-size:12px;background:#fff;color:var(--txt2);outline:none;cursor:pointer}
+.qa-sel:focus{border-color:var(--blue)}
+/* List */
+.sp-lhdr{display:grid;grid-template-columns:36px 1fr 120px 85px 110px 140px 64px;background:#F4F5F7;border-bottom:1.5px solid var(--border)}
+.sp-lhc{padding:8px 10px;font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;border-right:1px solid #EBECF0;white-space:nowrap;user-select:none}
+.sp-lhc:last-child{border-right:none}
+.sp-row{display:grid;grid-template-columns:36px 1fr 120px 85px 110px 140px 64px;border-bottom:1px solid #EBECF0;align-items:center;transition:.08s;animation:fadeUp .18s ease}
+.sp-row:last-child{border-bottom:none}
+.sp-row:hover{background:#F7F8FF}
+.sp-row:hover .sp-acts{opacity:1}
+.sp-row:hover .sp-chk{border-color:var(--blue)}
+.sp-cell{padding:9px 10px;font-size:13px;border-right:1px solid #EBECF0;min-width:0;overflow:hidden}
+.sp-cell:last-child{border-right:none}
+.sp-chk{width:14px;height:14px;border:2px solid #DFE1E6;border-radius:2px;flex-shrink:0;transition:.1s;cursor:pointer}
+.sp-acts{opacity:0;display:flex;gap:2px;transition:.1s}
+.sp-act{border:none;background:transparent;cursor:pointer;padding:3px 5px;border-radius:2px;font-size:12px;color:var(--txt2);transition:.1s}
+.sp-act:hover{background:#F4F5F7}
+.sp-stat{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:2px;font-size:11px;font-weight:600;cursor:pointer;border:none;appearance:none;-webkit-appearance:none;width:100%}
+.sp-alert{display:inline-flex;align-items:center;gap:2px;padding:1px 5px;border-radius:2px;font-size:9px;font-weight:700;border:1px solid;white-space:nowrap}
+.mbar{height:3px;background:#EBECF0;border-radius:2px;margin-top:8px;overflow:hidden}
+.mfil{height:100%;border-radius:2px;transition:width .6s}
 
-/* ── Section Title ── */
-.stitle{font-size:11px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.08em;margin-bottom:14px;display:flex;align-items:center;gap:10px}
-.stitle::after{content:'';flex:1;height:1.5px;background:linear-gradient(90deg,var(--gold) 0%,transparent 100%)}
+/* ════════════════════════════
+   2. JIRA SWIMLANE BOARD
+   ════════════════════════════ */
+.jira-wrap{padding:16px 20px;overflow-x:auto}
+.jira-board{min-width:700px;background:var(--surf);border:1px solid var(--border);border-radius:4px;overflow:hidden;box-shadow:var(--sh1)}
+.jira-hdr-row{display:grid;grid-template-columns:170px 1fr 1fr 1fr;background:#F4F5F7;border-bottom:2px solid var(--border)}
+.jira-hdr-cell{padding:10px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#fff;display:flex;justify-content:space-between;align-items:center}
+.jira-hdr-lbl{background:transparent;border-right:1px solid var(--border)}
+.jira-cnt{background:rgba(255,255,255,.22);border-radius:10px;padding:1px 8px;font-size:10px}
+.jira-lane{display:grid;grid-template-columns:170px 1fr 1fr 1fr;border-bottom:2px solid #EBECF0}
+.jira-lane:last-child{border-bottom:none}
+.jira-lane-lbl{padding:10px 12px;border-right:1px solid var(--border);background:#F8F9FB;display:flex;flex-direction:column;justify-content:flex-start;gap:5px;cursor:pointer;transition:.1s;user-select:none}
+.jira-lane-lbl:hover{background:#F0F2F8}
+.jira-lane-cell{padding:8px;border-right:1px solid #EBECF0;background:#FAFBFC;min-height:90px;vertical-align:top}
+.jira-lane-cell:last-child{border-right:none}
+.jira-lane.collapsed .jira-lane-cell{display:none}
+.jira-lane.collapsed .jira-lane-lbl{border-bottom:none}
+/* JIRA card */
+.jc{background:#fff;border-radius:3px;border-left:3px solid;padding:8px 10px;margin-bottom:6px;box-shadow:var(--sh1);transition:.14s;cursor:default;animation:fadeUp .18s ease;position:relative}
+.jc:hover{box-shadow:var(--sh2);transform:translateY(-1px)}
+.jc-title{font-size:13px;font-weight:500;color:var(--txt);line-height:1.4;margin-bottom:6px}
+.jc-title.done{text-decoration:line-through;color:var(--txt3)}
+.jc-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.jc-acts{position:absolute;top:6px;right:6px;display:none;gap:2px}
+.jc:hover .jc-acts{display:flex}
+.jc-act{border:none;background:#F4F5F7;border-radius:2px;padding:2px 5px;font-size:11px;cursor:pointer;color:var(--txt2);transition:.1s}
+.jc-act:hover{background:#EBECF0}
+.jc-chip{display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:2px;font-size:10px;font-weight:600;white-space:nowrap}
+.jc-prio{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.jira-empty{text-align:center;padding:18px 8px;color:var(--txt3);font-size:11px}
 
-/* ── Bars ── */
-.pbar{height:6px;background:rgba(0,0,0,.07);border-radius:3px;overflow:hidden;margin-top:6px}
+/* ════════════════════════════
+   3. MANAGER DASHBOARD
+      (ProjectManager.com style)
+   ════════════════════════════ */
+.d-wrap{padding:16px 20px}
+/* KPI row */
+.d-kpi{background:#fff;border-radius:3px;padding:14px 16px;border:1px solid var(--border);transition:box-shadow .12s,transform .12s;cursor:default}
+.d-kpi:hover{box-shadow:var(--sh2);transform:translateY(-2px)}
+.d-kpi-num{font-size:30px;font-weight:800;letter-spacing:-1.5px;line-height:1}
+.d-kpi-lbl{font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;margin-top:5px}
+/* Widgets with colored headers (Image 1 style) */
+.wg{background:#fff;border-radius:3px;border:1px solid var(--border);overflow:hidden;display:flex;flex-direction:column;box-shadow:var(--sh1)}
+.wg-hdr{padding:8px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.wg-ttl{font-size:11px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:6px}
+.wg-sub{font-size:10px;color:rgba(255,255,255,.65)}
+.wg-body{padding:0;flex:1;overflow:hidden}
+/* Summary table */
+.sum-hdr{display:grid;grid-template-columns:1fr 50px 50px 50px 110px;background:#F4F5F7;border-bottom:1.5px solid var(--border);padding:6px 10px;font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em}
+.sum-row{display:grid;grid-template-columns:1fr 50px 50px 50px 110px;padding:8px 10px;border-bottom:1px solid #EBECF0;align-items:center;transition:.08s;cursor:default}
+.sum-row:last-child{border-bottom:none}
+.sum-row:hover{background:#F7F8FF}
+/* Progress bar */
+.pbar{height:6px;background:#EBECF0;border-radius:3px;overflow:hidden}
 .pfil{height:100%;border-radius:3px;transition:width .7s cubic-bezier(.4,0,.2,1)}
-.cbar{height:9px;background:rgba(0,0,0,.06);border-radius:5px;overflow:hidden;margin-top:5px}
-.cfil{height:100%;border-radius:5px;transition:width .7s cubic-bezier(.4,0,.2,1)}
+.ibar{height:9px;background:#EBECF0;border-radius:3px;overflow:hidden;cursor:default;transition:.1s}
+.ibar:hover{opacity:.8}
+.ifil{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.4,0,.2,1)}
+/* Stacked bar */
+.sbar{display:flex;height:12px;border-radius:3px;overflow:hidden;background:#EBECF0}
+.sbar-s{height:100%;transition:width .7s cubic-bezier(.4,0,.2,1);min-width:0}
+/* Donut */
+.donut-wrap{position:relative;flex-shrink:0}
+/* Vbar chart */
+.vbar-area{display:flex;gap:6px;align-items:flex-end;height:72px}
+.vbar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px}
+.vbar-stack{width:100%;display:flex;flex-direction:column;justify-content:flex-end;height:72px;gap:1px}
+.vbar-s{width:100%;transition:height .7s cubic-bezier(.4,0,.2,1);min-height:0}
+/* At-risk table */
+.risk-grid{display:grid;grid-template-columns:1fr 80px 95px 110px}
+.risk-hdr{background:#F4F5F7;font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.04em;border-bottom:1.5px solid var(--border);border-radius:3px 3px 0 0}
+.risk-row{border-bottom:1px solid #EBECF0;transition:.08s;cursor:default}
+.risk-row:last-child{border-bottom:none}
+.risk-row:hover{background:#FFF8F0}
+.risk-cell{padding:8px 10px;font-size:12px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.d-badge{display:inline-flex;align-items:center;gap:2px;padding:1px 6px;border-radius:2px;font-size:9px;font-weight:700;border:1px solid;white-space:nowrap}
+/* Legend */
+.ldot{width:8px;height:8px;border-radius:2px;display:inline-block;flex-shrink:0}
 
-/* ── Modal ── */
-.mbg{position:fixed;inset:0;background:rgba(7,33,55,.5);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:300;padding:16px}
-.modal{background:var(--surf);border-radius:var(--r16);padding:30px;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;box-shadow:var(--sh-lg);animation:modalIn .25s cubic-bezier(.34,1.4,.64,1)}
-
-/* ── Avatar ── */
-.av{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-weight:800;flex-shrink:0;letter-spacing:.01em}
-
-/* ── Toasts ── */
-.toast{animation:slideR .28s ease}
-
-/* ── Misc ── */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.sdot{width:7px;height:7px;border-radius:50%;display:inline-block}
+/* ── Drawer ── */
+.drawer-bg{position:fixed;inset:0;background:rgba(9,30,66,.35);z-index:300;animation:fadeIn .18s;backdrop-filter:blur(2px)}
+.drawer{position:fixed;top:0;right:0;width:420px;height:100vh;background:#fff;box-shadow:-4px 0 32px rgba(9,30,66,.2);z-index:301;display:flex;flex-direction:column;animation:drawerIn .22s cubic-bezier(.4,0,.2,1)}
+.drawer-hdr{padding:16px 20px;border-bottom:1px solid var(--border);flex-shrink:0}
+.drawer-body{flex:1;overflow-y:auto;padding:20px}
+.drawer-foot{padding:12px 20px;border-top:1px solid var(--border);flex-shrink:0;background:#F4F5F7}
+/* Toast */
+.toast{animation:slideR .22s ease}
 </style>
 </head>
 <body>
-<div id="toasts" style="position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;max-width:360px;pointer-events:none"></div>
+<div id="toasts" style="position:fixed;top:12px;right:12px;z-index:9999;display:flex;flex-direction:column;gap:6px;max-width:340px;pointer-events:none"></div>
 <div id="root"></div>
 <script id="sc">
 // ── CONSTANTS ──────────────────────────────────────────────────────────────
 const TEAM=['Nikita','Jayesh','Shashi'];
-const OWN_CLR={Nikita:'#0072EC',Jayesh:'#05A550',Shashi:'#E98A2C'};
+const OWN_CLR={Nikita:'#0052CC',Jayesh:'#006644',Shashi:'#FF5630'};
 const CAT=[
-  {id:'report',     label:'Report',            icon:'📊',color:'#0072EC'},
-  {id:'outreaches', label:'Outreaches',         icon:'📣',color:'#E98A2C'},
-  {id:'meeting',    label:'Meeting',            icon:'🤝',color:'#05A550'},
-  {id:'preparation',label:'Preparation',        icon:'📋',color:'#07456B'},
-  {id:'escalation', label:'Support Escalation', icon:'🚨',color:'#D93025'},
-  {id:'tools',      label:'Tools Training',     icon:'🛠️',color:'#7C3AED'},
-  {id:'skill',      label:'Skill Development',  icon:'📚',color:'#0891B2'},
-  {id:'adhoc',      label:'Adhoc',              icon:'⚡',color:'#D97706'},
+  {id:'report',     label:'Report',            icon:'📊',color:'#0052CC'},
+  {id:'outreaches', label:'Outreaches',         icon:'📣',color:'#FF991F'},
+  {id:'meeting',    label:'Meeting',            icon:'🤝',color:'#00875A'},
+  {id:'preparation',label:'Preparation',        icon:'📋',color:'#344563'},
+  {id:'escalation', label:'Support Escalation', icon:'🚨',color:'#DE350B'},
+  {id:'tools',      label:'Tools Training',     icon:'🛠️',color:'#6554C0'},
+  {id:'skill',      label:'Skill Development',  icon:'📚',color:'#00A3BF'},
+  {id:'adhoc',      label:'Adhoc',              icon:'⚡',color:'#FF8B00'},
 ];
 const STS=[
-  {id:'todo',      label:'Yet to Start',color:'#64748B',bg:'#F1F5F9'},
-  {id:'inprogress',label:'In Progress', color:'#E98A2C',bg:'#FFF7ED'},
-  {id:'completed', label:'Completed',   color:'#05A550',bg:'#F0FDF4'},
+  {id:'todo',      label:'To Do',       color:'#5E6C84',bg:'#F4F5F7'},
+  {id:'inprogress',label:'In Progress', color:'#0052CC',bg:'#DEEBFF'},
+  {id:'completed', label:'Done',        color:'#006644',bg:'#E3FCEF'},
 ];
 const PRI=[
-  {id:'high',  label:'High',  color:'#D93025'},
-  {id:'medium',label:'Medium',color:'#E98A2C'},
-  {id:'low',   label:'Low',   color:'#05A550'},
+  {id:'high',  label:'High',  color:'#DE350B'},
+  {id:'medium',label:'Medium',color:'#FF8B00'},
+  {id:'low',   label:'Low',   color:'#00875A'},
 ];
 const GH='https://api.github.com';
 
 // ── STATE ──────────────────────────────────────────────────────────────────
-let cfg   =lsLoad('dqa_cfg',{owner:'',repo:'',pat:'',user:'Nikita'});
-let tasks =[];
-let sha   =null;
-let sync  ='idle';
-let view  ='my';
-let fSt='all',fCat='all';
+let cfg=lsLoad('dqa_cfg',{owner:'',repo:'',pat:'',user:'Nikita'});
+let tasks=[],sha=null,sync='idle';
+let view='my',fCat='all',stFilter='all';
 let showForm=false,editId=null,adhocMode=false;
 let toastArr=[],notified=new Set(),now=new Date();
+let gitFailed=false,errShown=false,lastAttempt=0;
+let collapsedLanes=new Set();
 
 // ── HELPERS ────────────────────────────────────────────────────────────────
 function lsLoad(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch{return d;}}
@@ -143,662 +238,440 @@ function gp(id){return PRI.find(p=>p.id===id)||PRI[1];}
 function isDis(t){return t.status==='todo'&&t.startDate&&now>new Date(t.startDate+(t.startTime?'T'+t.startTime:'T00:00'));}
 function isOv(t){return t.status!=='completed'&&t.dueDate&&now>new Date(t.dueDate+(t.dueTime?'T'+t.dueTime:'T23:59'));}
 function pct(n,d){return d?Math.round((n/d)*100):0;}
-function av(name,sz=26){
-  const bg=OWN_CLR[name]||'#64748B';
-  const ini=(name||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();
-  return`<span class="av" style="width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.38)}px;background:${bg}">${ini}</span>`;
-}
-function iconBox(emoji,color,sz=36){
-  return`<div style="width:${sz}px;height:${sz}px;border-radius:${Math.round(sz*.28)}px;background:${color}18;display:flex;align-items:center;justify-content:center;font-size:${Math.round(sz*.45)}px;flex-shrink:0">${emoji}</div>`;
-}
+function av(name,sz=26){const bg=OWN_CLR[name]||'#42526E';const ini=(name||'?').split(' ').map(n=>n[0]).join('').slice(0,2).toUpperCase();return`<span class="av" style="width:${sz}px;height:${sz}px;font-size:${Math.round(sz*.37)}px;background:${bg}">${ini}</span>`;}
 
 // ── GITHUB API ─────────────────────────────────────────────────────────────
-async function ghFetch(path,opts={}){
-  return fetch(GH+path,{...opts,headers:{'Authorization':'token '+cfg.pat,'Content-Type':'application/json',...(opts.headers||{})}});
-}
+async function ghFetch(path,opts={}){const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),9000);try{const r=await fetch(GH+path,{...opts,signal:ctrl.signal,headers:{'Authorization':'token '+cfg.pat,'Content-Type':'application/json',...(opts.headers||{})}});clearTimeout(t);return r;}catch(e){clearTimeout(t);throw e;}}
 async function loadTasks(){
-  if(!cfg.pat){tasks=lsLoad('dqa_tasks',[]);render();return;}
-  sync='loading';render();
-  try{
-    const r=await ghFetch('/repos/'+cfg.owner+'/'+cfg.repo+'/contents/tasks.json');
-    if(r.status===404){tasks=[];sha=null;}
-    else if(!r.ok){throw new Error('HTTP '+r.status);}
-    else{const d=await r.json();sha=d.sha;tasks=JSON.parse(atob(d.content.replace(/\n/g,'')));}
-    sync='ok';
-  }catch(e){sync='error';showErrToast('Could not load from GitHub: '+e.message);tasks=lsLoad('dqa_tasks',[]);}
+  if(!cfg.pat){tasks=lsLoad('dqa_tasks',[]);sync='local';render();return;}
+  if(gitFailed&&Date.now()-lastAttempt<180000){tasks=lsLoad('dqa_tasks',[]);sync='offline';render();return;}
+  sync='loading';lastAttempt=Date.now();render();
+  try{const r=await ghFetch('/repos/'+cfg.owner+'/'+cfg.repo+'/contents/tasks.json');if(r.status===404){tasks=[];sha=null;}else if(!r.ok){throw new Error('HTTP '+r.status);}else{const d=await r.json();sha=d.sha;tasks=JSON.parse(atob(d.content.replace(/\n/g,'')));}gitFailed=false;errShown=false;sync='ok';lsSave('dqa_tasks',tasks);}
+  catch(e){gitFailed=true;sync='offline';tasks=lsLoad('dqa_tasks',[]);if(!errShown){errShown=true;showErrToast('GitHub unreachable — working offline. '+e.message);}}
   render();
 }
 async function saveTasks(){
   lsSave('dqa_tasks',tasks);
-  if(!cfg.pat){showSaveToast();render();return;}
+  if(!cfg.pat){showSaveToast('Saved');render();return;}
+  if(gitFailed){showSaveToast('Saved locally (offline)');render();return;}
   sync='saving';render();
-  try{
-    const body={message:'Update tasks — '+cfg.user+' — '+new Date().toLocaleString('en-IN'),content:btoa(unescape(encodeURIComponent(JSON.stringify(tasks,null,2))))};
-    if(sha)body.sha=sha;
-    const r=await ghFetch('/repos/'+cfg.owner+'/'+cfg.repo+'/contents/tasks.json',{method:'PUT',body:JSON.stringify(body)});
-    if(r.ok){const d=await r.json();sha=d.content.sha;sync='ok';showSaveToast();}
-    else{sync='error';showErrToast('GitHub save failed — check PAT permissions.');}
-  }catch(e){sync='error';showErrToast('Network error: '+e.message);}
+  try{const body={message:'Update tasks — '+cfg.user,content:btoa(unescape(encodeURIComponent(JSON.stringify(tasks,null,2))))};if(sha)body.sha=sha;const r=await ghFetch('/repos/'+cfg.owner+'/'+cfg.repo+'/contents/tasks.json',{method:'PUT',body:JSON.stringify(body)});if(r.ok){const d=await r.json();sha=d.content.sha;sync='ok';gitFailed=false;showSaveToast('Synced to GitHub');}else{sync='offline';gitFailed=true;showSaveToast('Saved locally');}}
+  catch(e){sync='offline';gitFailed=true;showSaveToast('Saved locally');}
   render();
 }
 
 // ── TOASTS ─────────────────────────────────────────────────────────────────
-function showSaveToast(){
-  toastArr=toastArr.filter(x=>x.type!=='saved');
-  const aid=Date.now();toastArr.push({aid,type:'saved',msg:'✅  Saved successfully'});renderToasts();
-  setTimeout(()=>{toastArr=toastArr.filter(x=>x.aid!==aid);renderToasts();},2500);
-}
-function showErrToast(msg){
-  const aid=Date.now()+Math.random();toastArr.push({aid,type:'error',msg:'❌  '+msg});renderToasts();
-  setTimeout(()=>{toastArr=toastArr.filter(x=>x.aid!==aid);renderToasts();},7000);
-}
-function pushAlertToast(id,type,msg){
-  const k=id+'_'+type;if(notified.has(k))return false;notified.add(k);
-  const aid=Date.now()+Math.random();toastArr.push({aid,type,msg});renderToasts();
-  setTimeout(()=>{toastArr=toastArr.filter(x=>x.aid!==aid);renderToasts();},10000);
-  return true;
-}
-function renderToasts(){
-  const b=document.getElementById('toasts');if(!b)return;
-  const cfg2={
-    saved:{bg:'#F0FDF4',br:'#86EFAC',dot:'#05A550'},
-    disrupted:{bg:'#FEFCE8',br:'#FDE047',dot:'#CA8A04'},
-    overdue:{bg:'#FFF1F2',br:'#FCA5A5',dot:'#D93025'},
-    error:{bg:'#FFF1F2',br:'#FCA5A5',dot:'#D93025'},
-  };
-  b.innerHTML=toastArr.map(a=>{
-    const s=cfg2[a.type]||cfg2.error;
-    return`<div class="toast" style="background:${s.bg};border:1.5px solid ${s.br};border-radius:10px;padding:12px 14px;box-shadow:0 8px 24px rgba(13,33,55,.14);font-size:13px;font-weight:500;display:flex;align-items:center;gap:10px;pointer-events:all;min-width:280px">
-      <span style="width:8px;height:8px;border-radius:50%;background:${s.dot};flex-shrink:0"></span>
-      <span style="flex:1;color:#0D2137">${esc(a.msg)}</span>
-      <button data-action="dimToast" data-aid="${a.aid}" style="border:none;background:transparent;cursor:pointer;color:#8FA4B8;font-size:16px;padding:0;line-height:1">×</button>
-    </div>`;
-  }).join('');
-}
-
-// ── NOTIFICATIONS ──────────────────────────────────────────────────────────
-function fireBrowser(title,body,tag){if('Notification' in window&&Notification.permission==='granted'){try{new Notification(title,{body,tag});}catch{}}}
-function checkAlerts(){
-  tasks.filter(t=>!t.owner||t.owner===cfg.user).forEach(t=>{
-    if(isDis(t)&&pushAlertToast(t.id,'disrupted','⚠️  Not Started: '+t.title))fireBrowser('⚠️ Not Started',t.title+' — planned '+fdt(t.startDate,t.startTime),'d_'+t.id);
-    if(isOv(t)&&pushAlertToast(t.id,'overdue','🔴  Overdue: '+t.title))fireBrowser('🔴 Overdue',t.title+' — due '+fdt(t.dueDate,t.dueTime),'o_'+t.id);
-  });
-}
+function showSaveToast(msg){toastArr=toastArr.filter(x=>x.type!=='saved');const aid=Date.now();toastArr.push({aid,type:'saved',msg:'✓  '+msg});renderToasts();setTimeout(()=>{toastArr=toastArr.filter(x=>x.aid!==aid);renderToasts();},2500);}
+function showErrToast(msg){const aid=Date.now()+Math.random();toastArr.push({aid,type:'error',msg});renderToasts();setTimeout(()=>{toastArr=toastArr.filter(x=>x.aid!==aid);renderToasts();},10000);}
+function pushAlertToast(id,type,msg){const k=id+'_'+type;if(notified.has(k))return false;notified.add(k);const aid=Date.now()+Math.random();toastArr.push({aid,type,msg});renderToasts();setTimeout(()=>{toastArr=toastArr.filter(x=>x.aid!==aid);renderToasts();},10000);return true;}
+function renderToasts(){const b=document.getElementById('toasts');if(!b)return;const S={saved:{bg:'#E3FCEF',br:'#57D9A3',dot:'#006644'},error:{bg:'#FFEBE6',br:'#FFBDAD',dot:'#DE350B'},disrupted:{bg:'#FFFAE6',br:'#FFE380',dot:'#FF8B00'},overdue:{bg:'#FFEBE6',br:'#FFBDAD',dot:'#DE350B'}};b.innerHTML=toastArr.map(a=>{const s=S[a.type]||S.error;return`<div class="toast" style="background:${s.bg};border:1px solid ${s.br};border-radius:3px;padding:10px 12px;box-shadow:var(--sh2);font-size:13px;display:flex;align-items:flex-start;gap:8px;pointer-events:all;min-width:250px"><span style="width:6px;height:6px;border-radius:50%;background:${s.dot};flex-shrink:0;margin-top:4px"></span><span style="flex:1;color:var(--txt);line-height:1.5">${esc(a.msg)}</span><button data-action="dimToast" data-aid="${a.aid}" style="border:none;background:transparent;cursor:pointer;color:var(--txt3);font-size:16px;line-height:1">×</button></div>`;}).join('');}
+function fireBrowser(t,b,tag){if('Notification' in window&&Notification.permission==='granted'){try{new Notification(t,{body:b,tag});}catch{}}}
+function checkAlerts(){tasks.filter(t=>!t.owner||t.owner===cfg.user).forEach(t=>{if(isDis(t)&&pushAlertToast(t.id,'disrupted','⚠  Not Started: '+t.title))fireBrowser('⚠ Not Started',t.title,'d_'+t.id);if(isOv(t)&&pushAlertToast(t.id,'overdue','🔴  Overdue: '+t.title))fireBrowser('🔴 Overdue',t.title,'o_'+t.id);});}
 
 // ── ACTIONS ────────────────────────────────────────────────────────────────
 function saveTask(){
   const title=(document.getElementById('fm-title')?.value||'').trim();
   if(!title){showErrToast('Please enter a task title.');return;}
   const prev=editId?tasks.find(t=>t.id===editId):null;
-  const task={
-    id:editId||String(Date.now()),title,
-    category:document.getElementById('fm-cat')?.value   ||'adhoc',
-    priority:document.getElementById('fm-pri')?.value   ||'medium',
-    status:  document.getElementById('fm-status')?.value||'todo',
-    owner:   document.getElementById('fm-owner')?.value ||cfg.user,
-    startDate:document.getElementById('fm-sdate')?.value||'',
-    startTime:document.getElementById('fm-stime')?.value||'',
-    dueDate:  document.getElementById('fm-ddate')?.value||'',
-    dueTime:  document.getElementById('fm-dtime')?.value||'',
-    notes:    document.getElementById('fm-notes')?.value||'',
-    createdAt:prev?.createdAt||new Date().toISOString(),
-    updatedAt:new Date().toISOString()
-  };
+  const task={id:editId||String(Date.now()),title,category:document.getElementById('fm-cat')?.value||'adhoc',priority:document.getElementById('fm-pri')?.value||'medium',status:document.getElementById('fm-status')?.value||'todo',owner:document.getElementById('fm-owner')?.value||cfg.user,startDate:document.getElementById('fm-sdate')?.value||'',startTime:document.getElementById('fm-stime')?.value||'',dueDate:document.getElementById('fm-ddate')?.value||'',dueTime:document.getElementById('fm-dtime')?.value||'',notes:document.getElementById('fm-notes')?.value||'',createdAt:prev?.createdAt||new Date().toISOString(),updatedAt:new Date().toISOString()};
   if(editId){['disrupted','overdue'].forEach(x=>notified.delete(editId+'_'+x));tasks=tasks.map(t=>t.id===editId?task:t);}
   else tasks.push(task);
-  editId=null;showForm=false;adhocMode=false;
-  saveTasks();render();
+  editId=null;showForm=false;adhocMode=false;saveTasks();render();
 }
-function updSt(id,status){
-  ['disrupted','overdue'].forEach(x=>notified.delete(id+'_'+x));
-  tasks=tasks.map(t=>t.id===id?{...t,status,updatedAt:new Date().toISOString()}:t);
-  saveTasks();render();
+// Quick add — minimal friction, just title + category + priority
+function quickAdd(){
+  const title=(document.getElementById('qa-input')?.value||'').trim();
+  if(!title)return;
+  tasks.push({id:String(Date.now()),title,category:document.getElementById('qa-cat')?.value||'adhoc',priority:document.getElementById('qa-pri')?.value||'medium',status:'todo',owner:cfg.user,startDate:'',startTime:'',dueDate:'',dueTime:'',notes:'',createdAt:new Date().toISOString(),updatedAt:new Date().toISOString()});
+  saveTasks();
+  render();
+  setTimeout(()=>{const el=document.getElementById('qa-input');if(el){el.value='';el.focus();}},50);
 }
-function delTask(id){if(!confirm('Delete this task?'))return;tasks=tasks.filter(t=>t.id!==id);saveTasks();render();}
+function updSt(id,status){['disrupted','overdue'].forEach(x=>notified.delete(id+'_'+x));tasks=tasks.map(t=>t.id===id?{...t,status,updatedAt:new Date().toISOString()}:t);saveTasks();render();}
+function delTask(id){if(!confirm('Delete?'))return;tasks=tasks.filter(t=>t.id!==id);saveTasks();render();}
 function editTask(id){const t=tasks.find(x=>x.id===id);if(!t)return;editId=id;adhocMode=false;showForm=true;render();}
-function saveConfig(){
-  cfg={
-    owner:(document.getElementById('cfg-owner')?.value||'').trim(),
-    repo: (document.getElementById('cfg-repo')?.value||'').trim(),
-    pat:  (document.getElementById('cfg-pat')?.value||'').trim(),
-    user: document.getElementById('cfg-user')?.value||'Nikita'
-  };
-  lsSave('dqa_cfg',cfg);loadTasks();
-}
+function saveConfig(){cfg={owner:(document.getElementById('cfg-owner')?.value||'').trim(),repo:(document.getElementById('cfg-repo')?.value||'').trim(),pat:(document.getElementById('cfg-pat')?.value||'').trim(),user:document.getElementById('cfg-user')?.value||'Nikita'};lsSave('dqa_cfg',cfg);loadTasks();}
 
 // ── CHARTS ─────────────────────────────────────────────────────────────────
-function donut(segs,sz=108){
-  const total=segs.reduce((a,b)=>a+b.v,0);
-  if(!total)return`<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:#E2E8F0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#8FA4B8;flex-shrink:0">No data</div>`;
-  let cum=0;
-  const parts=segs.filter(s=>s.v>0).map(s=>{const p=(s.v/total)*100;const str=s.c+' '+cum.toFixed(2)+'% '+(cum+p).toFixed(2)+'%';cum+=p;return str;});
-  const inner=Math.round(sz*.26);
-  return`<div style="position:relative;width:${sz}px;height:${sz}px;flex-shrink:0">
-    <div style="width:${sz}px;height:${sz}px;border-radius:50%;background:conic-gradient(${parts.join(',')});box-shadow:0 4px 16px rgba(0,0,0,.12)"></div>
-    <div style="position:absolute;inset:${inner}px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 2px 6px rgba(0,0,0,.07)">
-      <span style="font-size:${Math.round(sz*.14)}px;font-weight:800;color:#0D2137;letter-spacing:-1px">${total}</span>
-      <span style="font-size:${Math.round(sz*.087)}px;color:#8FA4B8;font-weight:600">tasks</span>
-    </div>
-  </div>`;
-}
-function hBars(items,maxV){
-  return items.map(d=>`<div style="margin-bottom:12px">
-    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
-      <span style="color:var(--txt2)">${esc(d.label)}</span>
-      <span style="font-weight:700;color:${d.color||'var(--navy)'}">${d.value}</span>
-    </div>
-    <div class="cbar"><div class="cfil" style="width:${maxV?pct(d.value,maxV):0}%;background:${d.color||'var(--blue)'}"></div></div>
-  </div>`).join('');
-}
+function donut(segs,sz=110){const tot=segs.reduce((a,b)=>a+b.v,0);if(!tot)return`<div style="width:${sz}px;height:${sz}px;border-radius:50%;background:#EBECF0;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--txt3);flex-shrink:0">No data</div>`;let cum=0;const parts=segs.filter(s=>s.v>0).map(s=>{const p=(s.v/tot)*100;const r=s.c+' '+cum.toFixed(1)+'% '+(cum+p).toFixed(1)+'%';cum+=p;return r;});const inr=Math.round(sz*.26);return`<div class="donut-wrap" style="width:${sz}px;height:${sz}px;flex-shrink:0"><div style="width:100%;height:100%;border-radius:50%;background:conic-gradient(${parts.join(',')});box-shadow:0 3px 12px rgba(0,0,0,.12)"></div><div style="position:absolute;inset:${inr}px;top:${inr}px;left:${inr}px;right:${inr}px;bottom:${inr}px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 1px 4px rgba(0,0,0,.08)"><span style="font-size:${Math.round(sz*.17)}px;font-weight:800;color:var(--txt);letter-spacing:-1px">${tot}</span><span style="font-size:${Math.round(sz*.09)}px;color:var(--txt3);font-weight:600">tasks</span></div></div>`;}
 
-// ── RENDER ─────────────────────────────────────────────────────────────────
+// ── MAIN RENDER ────────────────────────────────────────────────────────────
 function render(){
   const root=document.getElementById('root');if(!root)return;
   const hasSetup=cfg.user&&(cfg.pat||cfg._local);
-  if(!hasSetup){root.innerHTML=renderSetup();return;}
-  root.innerHTML=renderApp();
+  if(!hasSetup){root.innerHTML=renderSetup();renderToasts();return;}
+  const mine=tasks.filter(t=>!t.owner||t.owner===cfg.user);
+  const alertCnt=mine.filter(isOv).length+mine.filter(isDis).length;
+  const sl={idle:'Ready',loading:'Syncing…',saving:'Saving…',ok:'Synced',offline:'Offline',local:'Local'}[sync];
+  const sc={idle:'#DFE1E6',loading:'#FFAB00',saving:'#FFAB00',ok:'#57D9A3',offline:'#FF5630',local:'#DFE1E6'}[sync];
+  const np='Notification' in window?Notification.permission:'denied';
+  const tvMap={my:'My Tasks',board:'Team Board',dash:'Manager Dashboard'};
+  root.innerHTML=`<div class="layout">
+  <aside class="sb">
+    <div class="sb-logo">
+      <div class="sb-icon">📌</div>
+      <div><div style="color:#fff;font-size:13px;font-weight:700;letter-spacing:-.2px">DQA Tracker</div><div style="color:rgba(255,255,255,.45);font-size:10px">Project44 · MS India</div></div>
+    </div>
+    <div style="padding:12px 6px 6px">
+      <div class="sb-sec">Workspace</div>
+      ${[['my','📋','My Tasks',alertCnt],['board','🗂','Team Board',0],['dash','📊','Dashboard',0]].map(([v,icon,label,badge])=>`<button data-action="setView" data-view="${v}" class="nav-item ${view===v?'on':''}"><span style="font-size:15px;width:20px;text-align:center">${icon}</span>${label}${badge>0?`<span class="nav-badge">${badge}</span>`:''}</button>`).join('')}
+    </div>
+    <div style="flex:1"></div>
+    <div class="sb-bottom">
+      ${sync==='offline'?`<button data-action="manualSync" style="width:100%;margin-bottom:8px;background:rgba(255,86,48,.15);color:#FF8F73;border:1px solid rgba(255,86,48,.25);border-radius:3px;padding:6px;font-size:11px;font-weight:600;cursor:pointer">↻ Retry GitHub</button>`:''}
+      ${np!=='granted'?`<button data-action="enBrowser" style="width:100%;margin-bottom:8px;background:rgba(255,171,0,.12);color:#FFAB00;border:1px solid rgba(255,171,0,.2);border-radius:3px;padding:6px;font-size:11px;font-weight:600;cursor:pointer">🔔 Enable Alerts</button>`:''}
+      <div class="sb-user" data-action="resetCfg">${av(cfg.user,28)}<div style="flex:1;min-width:0"><div style="color:#fff;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(cfg.user)}</div><div style="color:rgba(255,255,255,.4);font-size:10px">DQ Analyst</div></div><span style="color:rgba(255,255,255,.3);font-size:11px">⚙</span></div>
+      <div style="display:flex;align-items:center;gap:6px;padding:5px 4px;margin-top:4px"><span class="sync-dot" style="background:${sc}"></span><span style="color:rgba(255,255,255,.4);font-size:11px;font-weight:500;flex:1">${sl}</span><button data-action="refreshTasks" style="background:transparent;border:none;color:rgba(255,255,255,.3);cursor:pointer;font-size:13px;padding:2px 4px">↻</button><button data-action="dlHTML" style="background:transparent;border:none;color:rgba(255,255,255,.3);cursor:pointer;font-size:11px;padding:2px 4px">⬇</button></div>
+    </div>
+  </aside>
+  <div class="content">
+    <div class="topbar">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:14px;font-weight:700;color:#fff">${tvMap[view]}</span>
+        ${view==='board'?`<span style="font-size:11px;color:rgba(255,255,255,.5)">${tasks.length} tasks · ${TEAM.length} members</span>`:''}
+      </div>
+      <div style="display:flex;gap:7px;align-items:center">
+        ${view!=='dash'?`<button data-action="openAdd" class="tb-btn tb-btn-p">＋ Create</button><button data-action="openAdhoc" class="tb-btn tb-btn-o">⚡ Adhoc</button>`:''}
+        ${np==='granted'?`<span style="font-size:11px;color:#57D9A3;font-weight:600">🔔 ON</span>`:''}
+      </div>
+    </div>
+    <div style="flex:1">${view==='my'?renderMyTasks():view==='board'?renderBoard():renderDash()}</div>
+  </div>
+  ${showForm?renderDrawer():''}
+</div>`;
   renderToasts();
 }
 
-// ── SETUP SCREEN ────────────────────────────────────────────────────────────
-function renderSetup(){
-  return`<div style="min-height:100vh;display:flex">
-    <!-- Left panel -->
-    <div style="width:420px;flex-shrink:0;background:linear-gradient(160deg,#051f32 0%,#07456B 55%,#0a6090 100%);padding:48px 44px;display:flex;flex-direction:column;justify-content:space-between">
-      <div>
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:48px">
-          <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,var(--blue),#004db5);display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 4px 12px rgba(0,114,236,.4)">📌</div>
-          <div><div style="color:#fff;font-size:16px;font-weight:700">DQA Task Tracker</div><div style="color:rgba(255,255,255,.5);font-size:12px">Project44 · Managed Services</div></div>
-        </div>
-        <h1 style="color:#fff;font-size:28px;font-weight:800;line-height:1.25;margin-bottom:16px;letter-spacing:-.5px">Your team's tasks,<br>all in one place.</h1>
-        <p style="color:rgba(255,255,255,.6);font-size:14px;line-height:1.7;margin-bottom:36px">A shared, real-time task board for the DQA team — built on GitHub, accessible anywhere, with smart deadline alerts.</p>
-        <div style="display:flex;flex-direction:column;gap:14px">
-          ${[['📊','Live dashboard','High-level manager view at a glance'],['📌','Team Kanban','Tasks by owner, status, and priority'],['🔔','Smart alerts','Browser notifications for missed deadlines']].map(([i,t,s])=>`
-          <div style="display:flex;gap:12px;align-items:flex-start">
-            <div style="width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${i}</div>
-            <div><div style="color:#fff;font-weight:600;font-size:13px">${t}</div><div style="color:rgba(255,255,255,.5);font-size:12px;margin-top:1px">${s}</div></div>
-          </div>`).join('')}
-        </div>
-      </div>
-      <div style="color:rgba(255,255,255,.3);font-size:11px">© 2026 Project44 · Managed Services India Region</div>
-    </div>
-    <!-- Right panel -->
-    <div style="flex:1;display:flex;align-items:center;justify-content:center;padding:32px;background:var(--bg)">
-      <div style="background:var(--surf);border-radius:var(--r16);padding:40px;width:100%;max-width:420px;box-shadow:var(--sh-lg)">
-        <div style="margin-bottom:28px">
-          <h2 style="font-size:20px;font-weight:800;color:var(--txt);margin-bottom:6px">Connect your workspace</h2>
-          <p style="font-size:13px;color:var(--txt2)">Enter your GitHub details to sync tasks across the team in real time.</p>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:16px">
-          <div>
-            <label class="flbl">Your Name</label>
-            <select id="cfg-user" class="fi">
-              ${TEAM.map(t=>`<option value="${t}" ${cfg.user===t?'selected':''}>${t}</option>`).join('')}
-            </select>
-          </div>
-          <div>
-            <label class="flbl">GitHub Owner</label>
-            <input id="cfg-owner" class="fi" value="${esc(cfg.owner)}" placeholder="e.g. NikitaP44"/>
-          </div>
-          <div>
-            <label class="flbl">Repository Name</label>
-            <input id="cfg-repo" class="fi" value="${esc(cfg.repo)}" placeholder="e.g. dqa-task-tracker"/>
-          </div>
-          <div>
-            <label class="flbl">Personal Access Token</label>
-            <input id="cfg-pat" type="password" class="fi" value="${esc(cfg.pat)}" placeholder="ghp_..."/>
-            <span style="font-size:11px;color:var(--txt3);margin-top:5px;display:block">Needs repo Contents: Read + Write permission</span>
-          </div>
-          <button data-action="saveConfig" class="btn btn-p" style="width:100%;justify-content:center;padding:12px;font-size:14px;margin-top:4px">Connect to GitHub →</button>
-          <button data-action="localMode"  class="btn btn-line" style="width:100%;justify-content:center">Use locally without GitHub</button>
-        </div>
-      </div>
-    </div>
-  </div>`;
-}
-
-// ── APP SHELL ───────────────────────────────────────────────────────────────
-function renderApp(){
-  const today=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-  const sd={idle:'#8FA4B8',loading:'#E98A2C',saving:'#E98A2C',ok:'#05A550',error:'#D93025'}[sync];
-  const sl={idle:'Ready',loading:'Loading',saving:'Saving',ok:'Synced',error:'Error'}[sync];
-  const np='Notification' in window?Notification.permission:'denied';
-  let content='';
-  if(view==='my')    content=renderMyTasks();
-  else if(view==='board') content=renderTeamBoard();
-  else               content=renderDashboard();
-  return`<div style="min-height:100vh;display:flex;flex-direction:column">
-  <!-- ── Header ── -->
-  <div style="background:linear-gradient(160deg,#051f32 0%,#07456B 100%);position:sticky;top:0;z-index:100;box-shadow:0 4px 20px rgba(5,31,50,.4)">
-    <div style="max-width:1300px;margin:0 auto;padding:0 24px">
-      <!-- Top bar -->
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.08);flex-wrap:wrap;gap:10px">
-        <div style="display:flex;align-items:center;gap:12px">
-          <div style="width:36px;height:36px;border-radius:9px;background:linear-gradient(135deg,var(--blue),#004db5);display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:0 3px 10px rgba(0,114,236,.35)">📌</div>
-          <div>
-            <div style="color:#fff;font-size:15px;font-weight:700;letter-spacing:-.2px">DQA Task Tracker</div>
-            <div style="color:rgba(255,255,255,.45);font-size:11px">Project44 · Managed Services India</div>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
-          <!-- Sync status -->
-          <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);border-radius:20px;padding:5px 12px">
-            <span class="sdot ${sync==='saving'||sync==='loading'?'sdot-pulse':''}" style="background:${sd}"></span>
-            <span style="font-size:12px;color:rgba(255,255,255,.75);font-weight:600">${sl}</span>
-          </div>
-          <span style="font-size:11px;color:rgba(255,255,255,.35)">${today}</span>
-          ${np!=='granted'
-            ?`<button data-action="enBrowser" class="btn btn-g" style="font-size:12px;padding:6px 12px">🔔 Enable Alerts</button>`
-            :`<div style="display:flex;align-items:center;gap:5px;background:rgba(5,165,80,.15);border:1px solid rgba(5,165,80,.25);border-radius:20px;padding:5px 12px"><span style="width:6px;height:6px;border-radius:50%;background:#05A550;display:inline-block"></span><span style="font-size:12px;color:#6EE7A0;font-weight:600">Alerts Active</span></div>`}
-          <button data-action="refreshTasks" class="btn btn-g" style="font-size:12px;padding:6px 12px">🔄</button>
-          <button data-action="openAdd"   class="btn btn-p">＋ Add Task</button>
-          <button data-action="openAdhoc" class="btn btn-o">⚡ Adhoc</button>
-          <button data-action="dlHTML"    class="btn btn-g" style="font-size:12px;padding:6px 12px">⬇️</button>
-          <button data-action="resetCfg" style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:5px 12px;cursor:pointer;color:#fff">
-            ${av(cfg.user,22)}<span style="font-size:12px;font-weight:600">${esc(cfg.user)}</span>
-          </button>
-        </div>
-      </div>
-      <!-- Nav -->
-      <div style="display:flex">
-        <button data-action="setView" data-view="my"    class="ntab ${view==='my'?'on':''}">📋  My Tasks</button>
-        <button data-action="setView" data-view="board" class="ntab ${view==='board'?'on':''}">📌  Team Board</button>
-        <button data-action="setView" data-view="dash"  class="ntab ${view==='dash'?'on':''}">📊  Manager Dashboard</button>
-      </div>
-    </div>
-  </div>
-  <!-- ── Content ── -->
-  <div style="flex:1;max-width:1300px;width:100%;margin:0 auto;padding:24px">
-    ${content}
-  </div>
-  ${showForm?renderForm():''}
-</div>`;
-}
-
-// ── MY TASKS ───────────────────────────────────────────────────────────────
+// ══════════════════════════════════════════════════════════════
+// 1. MY TASKS — SharePoint + Inline Quick Add
+// ══════════════════════════════════════════════════════════════
 function renderMyTasks(){
   const mine=tasks.filter(t=>!t.owner||t.owner===cfg.user);
-  const fil=mine.filter(t=>(fSt==='all'||t.status===fSt)&&(fCat==='all'||t.category===fCat))
-    .sort((a,b)=>{const po={high:0,medium:1,low:2};if(isDis(a)!==isDis(b))return isDis(a)?-1:1;if(isOv(a)!==isOv(b))return isOv(a)?-1:1;return po[a.priority]-po[b.priority];});
   const cnt=STS.reduce((a,s)=>{a[s.id]=mine.filter(t=>t.status===s.id).length;return a;},{});
   const ovC=mine.filter(isOv).length,disC=mine.filter(isDis).length;
-
-  const statRows=[
-    {label:'Yet to Start',v:cnt.todo,     c:'#64748B',bg:'#F1F5F9',icon:'⏳'},
-    {label:'In Progress', v:cnt.inprogress,c:'#E98A2C',bg:'#FFF7ED',icon:'🔄'},
-    {label:'Completed',   v:cnt.completed, c:'#05A550',bg:'#F0FDF4',icon:'✅'},
-    {label:'Overdue',     v:ovC,           c:'#D93025',bg:'#FFF1F0',icon:'🚨'},
-    {label:'Disrupted',   v:disC,          c:'#92400E',bg:'#FFFBEB',icon:'⚠️'},
-  ];
-
+  let filtered=mine;
+  if(stFilter==='overdue')filtered=mine.filter(t=>isOv(t)||isDis(t));
+  else if(stFilter!=='all')filtered=mine.filter(t=>t.status===stFilter);
+  if(fCat!=='all')filtered=filtered.filter(t=>t.category===fCat);
+  filtered=filtered.sort((a,b)=>{const po={high:0,medium:1,low:2};if(isDis(a)!==isDis(b))return isDis(a)?-1:1;if(isOv(a)!==isOv(b))return isOv(a)?-1:1;return po[a.priority]-po[b.priority];});
+  const h=new Date().getHours();const greeting=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  const today=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   return`
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:22px">
-      ${statRows.map(s=>`
-      <div class="stat" style="border-top-color:${s.c};background:${s.bg}">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
-          <div class="stat-num" style="color:${s.c}">${s.v}</div>
-          <div style="width:34px;height:34px;border-radius:8px;background:${s.c}15;display:flex;align-items:center;justify-content:center;font-size:16px">${s.icon}</div>
-        </div>
-        <div class="stat-lbl">${s.label}</div>
+  <!-- Page header -->
+  <div style="background:#fff;border-bottom:1px solid var(--border);padding:16px 20px 0">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px">
+      <div><h1 style="font-size:22px;font-weight:700;color:var(--txt)">${greeting}, ${esc(cfg.user)} 👋</h1><p style="font-size:13px;color:var(--txt2);margin-top:3px">${today}</p></div>
+    </div>
+    <!-- Stat tiles -->
+    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:0;border:1px solid var(--border);border-radius:3px;overflow:hidden;margin-bottom:0">
+      ${[{l:'To Do',v:cnt.todo,c:'#5E6C84',b:'#F4F5F7'},{l:'In Progress',v:cnt.inprogress,c:'#0052CC',b:'#DEEBFF'},{l:'Done',v:cnt.completed,c:'#006644',b:'#E3FCEF'},{l:'Overdue',v:ovC,c:'#DE350B',b:'#FFEBE6'},{l:'Disrupted',v:disC,c:'#FF8B00',b:'#FFFAE6'}].map((s,i)=>`
+      <div class="sp-tile" style="border-top-color:${s.c};background:${s.b};border-right:${i<4?'1px solid var(--border)':'none'}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start"><div class="sp-tile-num" style="color:${s.c}">${s.v}</div><div style="width:28px;height:28px;border-radius:50%;background:${s.c}18;display:flex;align-items:center;justify-content:center;font-size:13px">${['⏳','🔄','✅','🚨','⚠️'][i]}</div></div>
+        <div style="font-size:10px;font-weight:700;color:${s.c};text-transform:uppercase;letter-spacing:.04em;margin-top:4px">${s.l}</div>
+        ${s.l==='Done'&&mine.length?`<div class="mbar"><div class="mfil" style="width:${pct(s.v,mine.length)}%;background:${s.c}"></div></div>`:''}
       </div>`).join('')}
     </div>
+  </div>
 
-    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-      <select data-filter="status" style="border:1.5px solid var(--border);border-radius:var(--r8);padding:8px 12px;font-size:13px;background:#fff;cursor:pointer;color:var(--txt)">
-        <option value="all" ${fSt==='all'?'selected':''}>All Statuses</option>
-        ${STS.map(s=>`<option value="${s.id}" ${fSt===s.id?'selected':''}>${s.label}</option>`).join('')}
+  <!-- List panel -->
+  <div style="margin:0;background:#fff;border-top:none">
+    <!-- Inline Quick Add (main innovation — no drawer needed) -->
+    <div class="qa-bar">
+      <span style="color:#0052CC;font-size:16px;font-weight:300;flex-shrink:0">＋</span>
+      <input id="qa-input" class="qa-input" placeholder="Type task name and press Enter ↵ to add instantly…" autocomplete="off"/>
+      <select id="qa-cat" class="qa-sel">
+        ${CAT.map(c=>`<option value="${c.id}">${c.icon} ${c.label}</option>`).join('')}
       </select>
-      <select data-filter="cat" style="border:1.5px solid var(--border);border-radius:var(--r8);padding:8px 12px;font-size:13px;background:#fff;cursor:pointer;color:var(--txt)">
-        <option value="all" ${fCat==='all'?'selected':''}>All Categories</option>
+      <select id="qa-pri" class="qa-sel">
+        ${PRI.map(p=>`<option value="${p.id}">${p.label}</option>`).join('')}
+      </select>
+      <button data-action="quickAdd" style="background:#0052CC;color:#fff;border:none;border-radius:3px;padding:5px 14px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">Add ↵</button>
+      <button data-action="openAdd" style="background:transparent;color:#0052CC;border:1px solid #0052CC;border-radius:3px;padding:5px 10px;font-size:11px;cursor:pointer;white-space:nowrap">+ More fields</button>
+    </div>
+
+    <!-- Command bar -->
+    <div class="sp-cmd">
+      <select data-filter="cat" style="border:none;background:transparent;font-size:13px;color:var(--txt2);cursor:pointer;outline:none;padding:5px 6px;border-radius:2px">
+        <option value="all">All Categories</option>
         ${CAT.map(c=>`<option value="${c.id}" ${fCat===c.id?'selected':''}>${c.icon} ${c.label}</option>`).join('')}
       </select>
-      ${(fSt!=='all'||fCat!=='all')?`<button data-action="clearFilters" class="btn btn-line" style="font-size:12px;padding:7px 12px">✕ Clear</button>`:''}
-      <span style="margin-left:auto;font-size:12px;color:var(--txt3);align-self:center">${fil.length} task${fil.length!==1?'s':''}</span>
+      <div class="sp-cmd-sep"></div>
+      <span style="font-size:12px;color:var(--txt3);padding:0 6px">${filtered.length} item${filtered.length!==1?'s':''}</span>
+      ${fCat!=='all'||stFilter!=='all'?`<div class="sp-cmd-sep"></div><button data-action="clearFilters" class="sp-cmd-btn" style="color:#0052CC">✕ Clear</button>`:''}
     </div>
 
-    ${fil.length===0
-      ?`<div style="text-align:center;padding:70px 0;color:var(--txt3)"><div style="font-size:44px;margin-bottom:14px">📭</div><div style="font-size:15px;font-weight:600">No tasks found</div><div style="font-size:13px;margin-top:6px">Add a task using the button in the header</div></div>`
-      :fil.map(t=>taskCard(t,true)).join('')}`;
+    <!-- Pivot tabs -->
+    <div class="sp-pivot">
+      ${[['all','All',mine.length],['todo','To Do',cnt.todo],['inprogress','In Progress',cnt.inprogress],['completed','Done',cnt.completed],['overdue','At Risk',ovC+disC]].map(([val,label,n])=>`<button data-action="stFilter" data-val="${val}" class="sp-tab ${stFilter===val?'on':''}">${label}<span class="sp-tab-cnt" ${val==='overdue'&&n>0?'style="background:#FFEBE6;color:#DE350B"':''}>${n}</span></button>`).join('')}
+    </div>
+
+    <!-- List -->
+    ${filtered.length===0?`<div style="text-align:center;padding:48px 20px;color:var(--txt3)"><div style="font-size:36px;margin-bottom:10px">📋</div><div style="font-size:15px;font-weight:600;color:var(--txt2)">No items</div><div style="font-size:13px;margin-top:6px">Use the quick-add bar above or click <strong>+ Create</strong></div></div>`:`
+    <div class="sp-lhdr"><div class="sp-lhc" style="justify-content:center">☐</div><div class="sp-lhc">Title</div><div class="sp-lhc">Category</div><div class="sp-lhc">Priority</div><div class="sp-lhc">Due Date</div><div class="sp-lhc">Status</div><div class="sp-lhc"></div></div>
+    ${filtered.map(t=>spRow(t)).join('')}`}
+  </div>`;
 }
 
-// ── TASK CARD ──────────────────────────────────────────────────────────────
-function taskCard(t,showStSel=true){
-  const cat=gc(t.category),st=gs(t.status),pr=gp(t.priority),ov=isOv(t),dis=isDis(t);
-  const lBorder=dis?'#EAB308':ov?'#D93025':cat.color;
-  return`<div class="tc" style="border-left-color:${lBorder};opacity:${t.status==='completed'?.68:1}">
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
-      <div style="flex:1;min-width:0">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
-          <span style="font-size:15px">${cat.icon}</span>
-          <span style="font-weight:700;font-size:14px;text-decoration:${t.status==='completed'?'line-through':'none'};color:${t.status==='completed'?'#8FA4B8':'var(--txt)'};letter-spacing:-.1px">${esc(t.title)}</span>
+function spRow(t){
+  const cat=gc(t.category),pr=gp(t.priority),st=gs(t.status),ov=isOv(t),dis=isDis(t);
+  const stP={todo:{bg:'#F4F5F7',c:'#5E6C84'},inprogress:{bg:'#DEEBFF',c:'#0052CC'},completed:{bg:'#E3FCEF',c:'#006644'}}[t.status]||{bg:'#F4F5F7',c:'#5E6C84'};
+  return`<div class="sp-row"><div class="sp-cell" style="display:flex;align-items:center;justify-content:center"><div class="sp-chk"></div></div>
+  <div class="sp-cell"><div style="display:flex;align-items:center;gap:8px;min-width:0"><div style="width:3px;height:28px;border-radius:1px;background:${cat.color};flex-shrink:0"></div><div style="min-width:0;flex:1"><div style="font-weight:600;font-size:13px;color:${t.status==='completed'?'var(--txt3)':'var(--txt)'};text-decoration:${t.status==='completed'?'line-through':'none'};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.title)}${dis?`<span class="sp-alert" style="color:#974F0C;background:#FFFAE6;border-color:#FFE380;margin-left:6px">⚠ Behind</span>`:''}${ov?`<span class="sp-alert" style="color:#BF2600;background:#FFEBE6;border-color:#FFBDAD;margin-left:6px">🔴 Late</span>`:''}</div>${t.notes?`<div style="font-size:10px;color:var(--txt3);font-style:italic;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:200px">${esc(t.notes.slice(0,50))}${t.notes.length>50?'…':''}</div>`:''}</div></div></div>
+  <div class="sp-cell"><span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--txt2)">${cat.icon} ${cat.label}</span></div>
+  <div class="sp-cell"><span style="display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:${pr.color}"><span style="width:6px;height:6px;border-radius:50%;background:${pr.color}"></span>${pr.label}</span></div>
+  <div class="sp-cell"><span style="font-size:12px;color:${ov?'#DE350B':'var(--txt2)'};font-weight:${ov?600:400}">${t.dueDate?fdt(t.dueDate,t.dueTime):'—'}</span></div>
+  <div class="sp-cell"><select data-action="updSt" data-id="${t.id}" class="sp-stat" style="background:${stP.bg};color:${stP.c}">${STS.map(s=>`<option value="${s.id}" ${t.status===s.id?'selected':''}>${s.label}</option>`).join('')}</select></div>
+  <div class="sp-cell"><div class="sp-acts"><button data-action="editTask" data-id="${t.id}" class="sp-act">✏️</button><button data-action="delTask" data-id="${t.id}" class="sp-act" style="color:#DE350B">🗑</button></div></div></div>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// 2. JIRA SWIMLANE BOARD
+// ══════════════════════════════════════════════════════════════
+function renderBoard(){
+  const stClr={todo:'#42526E',inprogress:'#0747A6',completed:'#006644'};
+  const stBg={todo:'#42526E',inprogress:'#0052CC',completed:'#00875A'};
+  return`<div class="jira-wrap">
+  <!-- Summary bar -->
+  <div style="display:flex;gap:8px;margin-bottom:12px;align-items:center;flex-wrap:wrap">
+    ${TEAM.map(m=>{const mt=tasks.filter(t=>t.owner===m);const mc=OWN_CLR[m];return`<div style="display:flex;align-items:center;gap:7px;background:#fff;border:1px solid var(--border);border-left:3px solid ${mc};border-radius:3px;padding:6px 12px;box-shadow:var(--sh1)">${av(m,20)}<div><div style="font-size:12px;font-weight:700;color:var(--txt)">${m}</div><div style="font-size:10px;color:var(--txt3)">${mt.length} tasks · ${pct(mt.filter(t=>t.status==='completed').length,mt.length)}% done</div></div></div>`;}).join('')}
+    <button data-action="openAdd" class="tb-btn tb-btn-p" style="margin-left:auto;font-size:12px;padding:5px 12px">＋ Create Issue</button>
+  </div>
+  <!-- JIRA Board -->
+  <div class="jira-board">
+    <!-- Column headers -->
+    <div class="jira-hdr-row">
+      <div class="jira-hdr-cell jira-hdr-lbl" style="color:var(--txt2)">ASSIGNEE</div>
+      ${STS.map(s=>{const col=tasks.filter(t=>t.status===s.id);return`<div class="jira-hdr-cell" style="background:${stBg[s.id]}"><span>${s.label.toUpperCase()}</span><span class="jira-cnt">${col.length}</span></div>`;}).join('')}
+    </div>
+    <!-- Swimlane rows -->
+    ${TEAM.map(member=>{
+      const mc=OWN_CLR[member]||'#42526E';
+      const mt=tasks.filter(t=>t.owner===member);
+      const isCollapsed=collapsedLanes.has(member);
+      return`<div class="jira-lane ${isCollapsed?'collapsed':''}">
+        <div class="jira-lane-lbl" data-action="toggleLane" data-lane="${member}" style="border-left:3px solid ${mc}">
+          <div style="display:flex;align-items:center;gap:7px;width:100%">
+            ${av(member,24)}
+            <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px;color:var(--txt)">${member}</div><div style="font-size:10px;color:var(--txt3)">${mt.length} tasks</div></div>
+            <span style="color:var(--txt3);font-size:11px;transition:.15s">${isCollapsed?'▶':'▼'}</span>
+          </div>
+          ${!isCollapsed?`<div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
+            ${STS.map(s=>{const c=mt.filter(t=>t.status===s.id).length;return c>0?`<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:2px;background:${stBg[s.id]}22;color:${stBg[s.id]}">${c} ${s.label}</span>`:''}).join('')}
+          </div>`:''}
         </div>
-        <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center">
-          <span class="chip" style="color:${cat.color};background:${cat.color}14;border:1px solid ${cat.color}22">${cat.label}</span>
-          <span class="chip" style="color:${pr.color};background:${pr.color}12;border:1px solid ${pr.color}20">
-            <span style="width:5px;height:5px;border-radius:50%;background:${pr.color};display:inline-block"></span>${pr.label}
-          </span>
-          ${t.owner?`<span class="chip" style="color:var(--navy);background:rgba(7,69,107,.07);border:1px solid rgba(7,69,107,.12);gap:5px">${av(t.owner,16)}${esc(t.owner)}</span>`:''}
-          ${dis?`<span class="chip-alert" style="color:#854D0E;background:#FEFCE8;border-color:#FDE047">⚠ Disrupted</span>`:''}
-          ${ov?`<span class="chip-alert" style="color:#991B1B;background:#FFF1F2;border-color:#FCA5A5">🔴 Overdue</span>`:''}
-          ${t.startDate?`<span style="font-size:11px;color:${dis?'#854D0E':'var(--txt3)'};display:flex;align-items:center;gap:3px"><span style="color:#05A550">▶</span> ${fdt(t.startDate,t.startTime)}</span>`:''}
-          ${t.dueDate?`<span style="font-size:11px;color:${ov?'#D93025':'var(--txt3)'};display:flex;align-items:center;gap:3px"><span>📅</span>${fdt(t.dueDate,t.dueTime)}</span>`:''}
-        </div>
-        ${t.notes?`<div style="font-size:12px;color:var(--txt3);margin-top:8px;font-style:italic;line-height:1.5;border-left:2px solid var(--border);padding-left:8px">${esc(t.notes)}</div>`:''}
+        ${STS.map(st=>{
+          const cards=tasks.filter(t=>t.owner===member&&t.status===st.id);
+          return`<div class="jira-lane-cell">
+            ${cards.length===0?`<div class="jira-empty">No ${st.label.toLowerCase()} tasks</div>`:cards.map(t=>jiraCard(t)).join('')}
+          </div>`;
+        }).join('')}
+      </div>`;
+    }).join('')}
+    <!-- Unassigned row -->
+    ${(()=>{const ua=tasks.filter(t=>!t.owner||!TEAM.includes(t.owner));if(!ua.length)return'';const isC=collapsedLanes.has('__unassigned');return`<div class="jira-lane ${isC?'collapsed':''}">
+      <div class="jira-lane-lbl" data-action="toggleLane" data-lane="__unassigned" style="border-left:3px solid #97A0AF">
+        <div style="display:flex;align-items:center;gap:7px"><div style="width:24px;height:24px;border-radius:50%;background:#97A0AF;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700">?</div><div><div style="font-weight:700;font-size:13px;color:var(--txt)">Unassigned</div><div style="font-size:10px;color:var(--txt3)">${ua.length} tasks</div></div><span style="color:var(--txt3);font-size:11px;margin-left:auto">${isC?'▶':'▼'}</span></div>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:7px;flex-shrink:0">
-        ${showStSel?`<select data-action="updSt" data-id="${t.id}" style="border:1.5px solid ${st.color}35;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;background:${st.bg};color:${st.color};cursor:pointer;outline:none;min-width:128px">${STS.map(s=>`<option value="${s.id}" ${t.status===s.id?'selected':''}>${s.label}</option>`).join('')}</select>`:''}
-        <div style="display:flex;gap:5px">
-          <button data-action="editTask" data-id="${t.id}" style="border:1.5px solid var(--border);border-radius:6px;padding:5px 10px;font-size:12px;background:#fff;cursor:pointer;color:var(--txt2);transition:all .15s" onmouseenter="this.style.borderColor='#0072EC';this.style.color='#0072EC'" onmouseleave="this.style.borderColor='';this.style.color=''">Edit</button>
-          <button data-action="delTask"  data-id="${t.id}" style="border:1.5px solid #FEE2E2;border-radius:6px;padding:5px 10px;font-size:12px;background:#fff;cursor:pointer;color:#D93025;transition:all .15s">Del</button>
-        </div>
-      </div>
+      ${STS.map(st=>`<div class="jira-lane-cell">${ua.filter(t=>t.status===st.id).map(t=>jiraCard(t)).join('')||`<div class="jira-empty">—</div>`}</div>`).join('')}
+    </div>`;})()}
+  </div></div>`;
+}
+
+function jiraCard(t){
+  const cat=gc(t.category),pr=gp(t.priority),ov=isOv(t),dis=isDis(t);
+  return`<div class="jc" style="border-left-color:${dis?'#FF8B00':ov?'#DE350B':cat.color};opacity:${t.status==='completed'?.7:1}">
+    <div class="jc-acts"><button data-action="editTask" data-id="${t.id}" class="jc-act">✏</button><button data-action="delTask" data-id="${t.id}" class="jc-act" style="color:#DE350B">✕</button></div>
+    <div class="jc-title ${t.status==='completed'?'done':''}">${esc(t.title)}</div>
+    <div class="jc-meta">
+      <span class="jc-chip" style="color:${cat.color};background:${cat.color}14">${cat.icon} ${cat.label}</span>
+      <span class="jc-prio" style="background:${pr.color}" title="${pr.label}"></span>
+      ${dis?`<span class="jc-chip" style="color:#974F0C;background:#FFFAE6">⚠</span>`:''}
+      ${ov?`<span class="jc-chip" style="color:#BF2600;background:#FFEBE6">🔴</span>`:''}
+      ${t.dueDate?`<span style="font-size:10px;color:${ov?'#DE350B':'var(--txt3)'}">📅${fdt(t.dueDate,t.dueTime)}</span>`:''}
+      ${t.owner?`<span style="margin-left:auto">${av(t.owner,16)}</span>`:''}
     </div>
   </div>`;
 }
 
-// ── TEAM BOARD ─────────────────────────────────────────────────────────────
-function renderTeamBoard(){
-  const khdr={
-    todo:'linear-gradient(135deg,#4B5563,#374151)',
-    inprogress:'linear-gradient(135deg,#F59A3A,#E98A2C)',
-    completed:'linear-gradient(135deg,#10B981,#05A550)'
-  };
-  const total=tasks.length;
-  return`
-    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
-      ${TEAM.map(m=>{
-        const mt=tasks.filter(t=>t.owner===m);
-        return`<div style="display:flex;align-items:center;gap:8px;background:var(--surf);border-radius:20px;padding:6px 14px;box-shadow:var(--sh-xs)">
-          ${av(m,24)}<span style="font-size:13px;font-weight:600;color:var(--txt)">${m}</span>
-          <span style="font-size:12px;color:var(--txt3)">${mt.length} task${mt.length!==1?'s':''}</span>
-        </div>`;
-      }).join('')}
-      <span style="margin-left:auto;align-self:center;font-size:12px;color:var(--txt3)">${total} total tasks across team</span>
-    </div>
-
-    <div style="display:flex;gap:14px;align-items:flex-start;overflow-x:auto;padding-bottom:8px">
-      ${STS.map(st=>{
-        const col=tasks.filter(t=>t.status===st.id);
-        return`<div class="kcol">
-          <div class="khdr" style="background:${khdr[st.id]}">
-            <span>${st.label}</span>
-            <span style="background:rgba(255,255,255,.22);border-radius:20px;padding:2px 10px;font-size:11px">${col.length}</span>
-          </div>
-          ${TEAM.map(member=>{
-            const mt=col.filter(t=>t.owner===member);
-            if(!mt.length)return'';
-            return`<div style="margin-bottom:12px">
-              <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px">
-                ${av(member,20)}
-                <span style="font-size:11px;font-weight:700;color:${OWN_CLR[member]||'var(--navy)'};text-transform:uppercase;letter-spacing:.05em">${member}</span>
-                <span style="font-size:10px;color:var(--txt3);margin-left:auto">${mt.length}</span>
-              </div>
-              ${mt.map(t=>taskCard(t,false)).join('')}
-            </div>`;
-          }).join('')}
-          ${col.filter(t=>!t.owner||!TEAM.includes(t.owner)).map(t=>taskCard(t,false)).join('')}
-          ${col.length===0?`<div style="text-align:center;padding:28px;color:var(--txt3);font-size:13px">No tasks</div>`:''}
-        </div>`;
-      }).join('')}
-    </div>`;
-}
-
-// ── MANAGER DASHBOARD ──────────────────────────────────────────────────────
-function renderDashboard(){
-  const total=tasks.length;
-  const done=tasks.filter(t=>t.status==='completed').length;
-  const inP=tasks.filter(t=>t.status==='inprogress').length;
-  const todo=tasks.filter(t=>t.status==='todo').length;
-  const ovC=tasks.filter(isOv).length;
-  const disC=tasks.filter(isDis).length;
-
-  const stSegs=[{v:todo,c:'#64748B'},{v:inP,c:'#E98A2C'},{v:done,c:'#05A550'}];
-  const prSegs=[
-    {v:tasks.filter(t=>t.priority==='high').length,   c:'#D93025'},
-    {v:tasks.filter(t=>t.priority==='medium').length, c:'#E98A2C'},
-    {v:tasks.filter(t=>t.priority==='low').length,    c:'#05A550'},
-  ];
-  const teamStats=TEAM.map(m=>{
-    const mt=tasks.filter(t=>t.owner===m);
-    return{name:m,total:mt.length,done:mt.filter(t=>t.status==='completed').length,inP:mt.filter(t=>t.status==='inprogress').length,todo:mt.filter(t=>t.status==='todo').length,ov:mt.filter(isOv).length,dis:mt.filter(isDis).length};
-  });
+// ══════════════════════════════════════════════════════════════
+// 3. MANAGER DASHBOARD — ProjectManager.com + Image 4 style
+// ══════════════════════════════════════════════════════════════
+function renderDash(){
+  const tot=tasks.length,done=tasks.filter(t=>t.status==='completed').length;
+  const inP=tasks.filter(t=>t.status==='inprogress').length,todo=tasks.filter(t=>t.status==='todo').length;
+  const ovC=tasks.filter(isOv).length,disC=tasks.filter(isDis).length;
+  const cr=pct(done,tot);const crClr=cr>=70?'#006644':cr>=40?'#0052CC':'#DE350B';
+  const ts=TEAM.map(m=>{const mt=tasks.filter(t=>t.owner===m);return{name:m,total:mt.length,done:mt.filter(t=>t.status==='completed').length,inP:mt.filter(t=>t.status==='inprogress').length,todo:mt.filter(t=>t.status==='todo').length,ov:mt.filter(isOv).length,dis:mt.filter(isDis).length};});
   const catBars=CAT.map(c=>({label:c.icon+' '+c.label,value:tasks.filter(t=>t.category===c.id).length,color:c.color})).filter(x=>x.value>0).sort((a,b)=>b.value-a.value);
-  const maxCat=Math.max(...catBars.map(x=>x.value),1);
-  const atRisk=tasks.filter(t=>isOv(t)||isDis(t)).sort((a,b)=>(isOv(b)?1:0)-(isOv(a)?1:0));
+  const mc=Math.max(...catBars.map(x=>x.value),1);
+  const atR=tasks.filter(t=>isOv(t)||isDis(t)).sort((a,b)=>(isOv(b)?1:0)-(isOv(a)?1:0));
+  const tSegs=[];let cu=0;if(done>0){tSegs.push(`#006644 0% ${pct(done,tot||1)}%`);cu=pct(done,tot||1);}if(inP>0){tSegs.push(`#0052CC ${cu}% ${cu+pct(inP,tot||1)}%`);cu+=pct(inP,tot||1);}if(todo>0)tSegs.push(`#DFE1E6 ${cu}% 100%`);
+  const tGrad=tSegs.length?tSegs.join(','):'#DFE1E6';
 
-  const bigStats=[
-    {label:'Total Tasks',   v:total, c:'#0072EC',bg:'#EFF6FF',icon:'📋'},
-    {label:'Completed',     v:done,  c:'#05A550',bg:'#F0FDF4',icon:'✅',sub:total?pct(done,total)+'% completion':''},
-    {label:'In Progress',   v:inP,   c:'#E98A2C',bg:'#FFF7ED',icon:'🔄'},
-    {label:'Yet to Start',  v:todo,  c:'#64748B',bg:'#F8FAFC',icon:'⏳'},
-    {label:'Overdue',       v:ovC,   c:'#D93025',bg:'#FFF1F0',icon:'🚨'},
-    {label:'Disrupted',     v:disC,  c:'#92400E',bg:'#FFFBEB',icon:'⚠️'},
-  ];
+  return`<div class="d-wrap">
+  <!-- ══ Row A: KPI tiles (Image 4 style) ══ -->
+  <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:14px">
+    ${[{l:'Total Tasks',v:tot,c:'#0747A6',bg:'#DEEBFF',icon:'📋'},{l:'Completed',v:done,c:'#006644',bg:'#E3FCEF',icon:'✅',sub:cr+'%'},{l:'In Progress',v:inP,c:'#0052CC',bg:'#DEEBFF',icon:'🔄'},{l:'To Do',v:todo,c:'#42526E',bg:'#F4F5F7',icon:'⏳'},{l:'Overdue',v:ovC,c:'#BF2600',bg:'#FFEBE6',icon:'🚨'},{l:'Disrupted',v:disC,c:'#974F0C',bg:'#FFFAE6',icon:'⚠️'}].map(k=>`
+    <div class="d-kpi" style="border-top:3px solid ${k.c};background:${k.bg}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px"><div class="d-kpi-num" style="color:${k.c}">${k.v}</div><div style="width:30px;height:30px;border-radius:50%;background:${k.c}20;display:flex;align-items:center;justify-content:center;font-size:13px">${k.icon}</div></div>
+      <div class="d-kpi-lbl">${k.l}</div>${k.sub?`<div style="font-size:10px;color:${k.c};font-weight:700;margin-top:3px">${k.sub} rate</div>`:''}
+    </div>`).join('')}
+  </div>
 
-  return`
-    <!-- Summary row -->
-    <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:20px">
-      ${bigStats.map(s=>`
-      <div class="stat" style="border-top-color:${s.c}">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-          <div class="stat-num" style="color:${s.c}">${s.v}</div>
-          ${iconBox(s.icon,s.c,34)}
-        </div>
-        <div class="stat-lbl">${s.label}</div>
-        ${s.sub?`<div style="font-size:11px;font-weight:700;color:${s.c};margin-top:5px">${s.sub}</div>`:''}
-      </div>`).join('')}
-    </div>
+  <!-- ══ Row B: Summary | Tasks | Workload ══ -->
+  <div style="display:grid;grid-template-columns:1.15fr 1fr .85fr;gap:12px;margin-bottom:12px">
 
-    <div style="display:grid;grid-template-columns:1.1fr 0.9fr;gap:16px;margin-bottom:16px">
-      <!-- Team Performance -->
-      <div class="card" style="padding:22px">
-        <div class="stitle">👥 Team Performance</div>
-        ${teamStats.map(m=>`
-          <div style="margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--border)">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px">
-              <div style="display:flex;align-items:center;gap:9px">
-                ${av(m.name,32)}
-                <div>
-                  <div style="font-weight:700;font-size:14px;color:var(--txt)">${m.name}</div>
-                  <div style="font-size:11px;color:var(--txt3)">${m.total} task${m.total!==1?'s':''} · ${pct(m.done,m.total)}% complete</div>
-                </div>
-              </div>
-              <div style="display:flex;gap:5px;flex-wrap:wrap">
-                ${m.ov>0?`<span class="chip-alert" style="color:#991B1B;background:#FFF1F2;border-color:#FCA5A5">${m.ov} overdue</span>`:''}
-                ${m.dis>0?`<span class="chip-alert" style="color:#854D0E;background:#FEFCE8;border-color:#FDE047">${m.dis} disrupted</span>`:''}
-                ${m.ov===0&&m.dis===0&&m.total>0?`<span class="chip-alert" style="color:#05A550;background:#F0FDF4;border-color:#86EFAC">✓ On track</span>`:''}
-              </div>
-            </div>
-            <div class="pbar"><div class="pfil" style="width:${pct(m.done,m.total)}%;background:${m.ov>0?'#D93025':m.dis>0?'#E98A2C':'#05A550'}"></div></div>
-            <div style="display:flex;gap:6px;margin-top:9px;flex-wrap:wrap">
-              ${STS.map(s=>{const c=tasks.filter(t=>t.owner===m.name&&t.status===s.id).length;return c>0?`<span class="chip" style="color:${s.color};background:${s.bg};border:1px solid ${s.color}22;font-size:10px">${s.label}: ${c}</span>`:''}).join('')}
-            </div>
-          </div>`).join('')}
+    <!-- Summary (Image 1 style: dark header + table) -->
+    <div class="wg">
+      <div class="wg-hdr" style="background:#1565C0">
+        <span class="wg-ttl">📋 Summary</span>
+        <span class="wg-sub">${new Date().toLocaleDateString('en-IN',{month:'short',year:'numeric'})}</span>
       </div>
-
-      <!-- Charts column -->
-      <div style="display:flex;flex-direction:column;gap:14px">
-        <div class="card" style="padding:20px">
-          <div class="stitle">📊 By Status</div>
-          <div style="display:flex;gap:18px;align-items:center">
-            ${donut(stSegs,100)}
-            <div style="flex:1">
-              ${STS.map((s,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-                <div style="display:flex;align-items:center;gap:7px">
-                  <span style="width:10px;height:10px;border-radius:3px;background:${stSegs[i].c};display:inline-block;flex-shrink:0"></span>
-                  <span style="font-size:12px;color:var(--txt2)">${s.label}</span>
-                </div>
-                <span style="font-weight:800;font-size:13px;color:${stSegs[i].c}">${stSegs[i].v}</span>
-              </div>`).join('')}
-            </div>
-          </div>
-        </div>
-        <div class="card" style="padding:20px">
-          <div class="stitle">🎯 By Priority</div>
-          <div style="display:flex;gap:18px;align-items:center">
-            ${donut(prSegs,100)}
-            <div style="flex:1">
-              ${PRI.map((p,i)=>`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-                <div style="display:flex;align-items:center;gap:7px">
-                  <span style="width:10px;height:10px;border-radius:50%;background:${prSegs[i].c};display:inline-block;flex-shrink:0"></span>
-                  <span style="font-size:12px;color:var(--txt2)">${p.label}</span>
-                </div>
-                <span style="font-weight:800;font-size:13px;color:${prSegs[i].c}">${prSegs[i].v}</span>
-              </div>`).join('')}
-            </div>
-          </div>
+      <div class="wg-body">
+        <div class="sum-hdr"><span>Member</span><span style="text-align:center">Tasks</span><span style="text-align:center">Done</span><span style="text-align:center">OD</span><span>Progress</span></div>
+        ${ts.map(m=>{const r=pct(m.done,m.total);const rc=m.ov>0?'#BF2600':r>=70?'#006644':'#0052CC';return`<div class="sum-row" style="background:${m.ov>0?'#FFF8F6':'#fff'}">
+          <div style="display:flex;align-items:center;gap:7px">${av(m.name,22)}<span style="font-weight:600;font-size:13px">${m.name}</span>${m.ov>0?`<span style="width:6px;height:6px;border-radius:50%;background:#DE350B"></span>`:''}</div>
+          <div style="text-align:center;font-weight:800;font-size:16px;color:#0747A6">${m.total}</div>
+          <div style="text-align:center;font-weight:800;font-size:16px;color:#006644">${m.done}</div>
+          <div style="text-align:center">${m.ov>0?`<span style="background:#FFEBE6;color:#BF2600;border:1px solid #FFBDAD;border-radius:2px;font-size:10px;font-weight:700;padding:1px 5px">${m.ov}</span>`:`<span style="color:#57D9A3;font-size:14px">✓</span>`}</div>
+          <div style="display:flex;align-items:center;gap:5px"><div style="flex:1;height:7px;background:#EBECF0;border-radius:3px;overflow:hidden"><div style="height:100%;width:${r}%;background:${rc};transition:width .7s"></div></div><span style="font-size:11px;font-weight:700;color:${rc};min-width:26px">${r}%</span></div>
+        </div>`;}).join('')}
+        <!-- Category footer chips -->
+        <div style="padding:8px 10px;border-top:1px solid var(--border);background:#F8F9FB;display:flex;flex-wrap:wrap;gap:4px">
+          ${catBars.slice(0,5).map(c=>`<span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:2px;background:${c.color}14;color:${c.color};border:1px solid ${c.color}30">${c.label} ${c.value}</span>`).join('')}
         </div>
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
-      <!-- Category breakdown -->
-      <div class="card" style="padding:22px">
-        <div class="stitle">📁 By Category</div>
-        ${catBars.length?hBars(catBars,maxCat):`<div style="text-align:center;padding:24px;color:var(--txt3);font-size:13px">No tasks yet</div>`}
+    <!-- Tasks donut (Image 1 style) -->
+    <div class="wg">
+      <div class="wg-hdr" style="background:#2E7D32">
+        <span class="wg-ttl">📊 Tasks</span>
+        <div style="display:flex;gap:6px">${[['Completed',done,'#A5D6A7'],['In Progress',inP,'#90CAF9'],['Not Started',todo,'rgba(255,255,255,.4)']].map(([l,v,c])=>`<span style="font-size:9px;color:${c};font-weight:700">${v} ${l.split(' ')[0]}</span>`).join('')}</div>
       </div>
-
-      <!-- At-risk table -->
-      <div class="card" style="padding:22px">
-        <div class="stitle" style="color:var(--red)">⚠️ At-Risk Tasks <span style="font-size:10px;background:#FFF1F2;color:var(--red);border:1px solid #FCA5A5;border-radius:20px;padding:2px 8px;margin-left:6px;font-weight:700">${atRisk.length}</span></div>
-        ${atRisk.length===0
-          ?`<div style="text-align:center;padding:30px;font-size:13px"><div style="font-size:32px;margin-bottom:10px">✅</div><div style="font-weight:700;color:var(--green)">All tasks on track!</div><div style="color:var(--txt3);font-size:12px;margin-top:4px">No overdue or disrupted tasks</div></div>`
-          :atRisk.slice(0,7).map((t,i)=>`<div style="padding:11px 0;border-bottom:${i<atRisk.slice(0,7).length-1?'1px solid var(--border)':'none'}">
-            <div style="display:flex;align-items:flex-start;gap:10px">
-              <div style="flex:1;min-width:0">
-                <div style="font-size:13px;font-weight:600;color:var(--txt);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(t.title)}</div>
-                <div style="display:flex;gap:5px;flex-wrap:wrap">
-                  <span class="chip" style="color:${gc(t.category).color};background:${gc(t.category).color}12;border:1px solid ${gc(t.category).color}20;font-size:10px">${gc(t.category).label}</span>
-                  ${t.owner?`<span class="chip" style="font-size:10px;gap:4px;color:var(--navy);background:rgba(7,69,107,.07);border:1px solid rgba(7,69,107,.12)">${av(t.owner,14)}${esc(t.owner)}</span>`:''}
-                  ${isOv(t)?`<span class="chip-alert" style="color:#991B1B;background:#FFF1F2;border-color:#FCA5A5;font-size:10px">🔴 Overdue</span>`:''}
-                  ${isDis(t)?`<span class="chip-alert" style="color:#854D0E;background:#FEFCE8;border-color:#FDE047;font-size:10px">⚠ Disrupted</span>`:''}
-                  ${t.dueDate?`<span style="font-size:10px;color:var(--red);font-weight:600">📅 ${fdt(t.dueDate,t.dueTime)}</span>`:''}
-                </div>
-              </div>
-            </div>
-          </div>`).join('')}
-      </div>
-    </div>`;
-}
-
-// ── TASK FORM ──────────────────────────────────────────────────────────────
-function renderForm(){
-  const t=editId?tasks.find(x=>x.id===editId):null;
-  const defOwner=t?.owner||cfg.user;
-  const headerBg=adhocMode?'linear-gradient(135deg,#F59A3A,#E98A2C)':'linear-gradient(135deg,#0072EC,#0058C7)';
-  return`<div data-overlay="form" class="mbg">
-    <div class="modal">
-      <!-- Form header -->
-      <div style="background:${headerBg};margin:-30px -30px 24px;padding:20px 28px;border-radius:var(--r16) var(--r16) 0 0;display:flex;justify-content:space-between;align-items:center">
-        <div>
-          <div style="color:rgba(255,255,255,.7);font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px">
-            ${adhocMode?'Quick Capture':t?'Edit Task':'New Task'}
-          </div>
-          <div style="color:#fff;font-size:16px;font-weight:700">${adhocMode?'⚡ Adhoc Task':t?'✏️ Edit Task':'➕ Add Task'}</div>
+      <div class="wg-body" style="display:flex;flex-direction:column;align-items:center;padding:14px 12px">
+        <!-- Legend pills -->
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center;margin-bottom:12px">
+          ${[['Completed',done,'#006644','#E3FCEF'],['In Progress',inP,'#0052CC','#DEEBFF'],['Not Started',todo,'#42526E','#F4F5F7']].map(([l,v,c,bg])=>`<div style="display:flex;align-items:center;gap:4px;border:1px solid ${c}25;background:${bg};border-radius:20px;padding:3px 8px;font-size:10px;font-weight:600;color:${c}"><span style="width:6px;height:6px;border-radius:50%;background:${c}"></span>${l}: <strong>${v}</strong></div>`).join('')}
         </div>
-        <button data-action="closeForm" style="border:none;background:rgba(255,255,255,.15);border-radius:8px;padding:6px 10px;cursor:pointer;color:#fff;font-size:18px;line-height:1;backdrop-filter:blur(4px)">×</button>
-      </div>
-
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <div>
-          <label class="flbl">Task Title *</label>
-          <input id="fm-title" class="fi" value="${esc(t?.title||'')}" placeholder="What needs to be done?"/>
-        </div>
-        <div class="g2">
-          <div>
-            <label class="flbl">Assigned To</label>
-            <select id="fm-owner" class="fi">
-              ${TEAM.map(m=>`<option value="${m}" ${defOwner===m?'selected':''}>${m}</option>`).join('')}
-            </select>
-          </div>
-          <div>
-            <label class="flbl">Category</label>
-            <select id="fm-cat" class="fi">
-              ${CAT.map(c=>`<option value="${c.id}" ${(t?.category||'adhoc')===c.id?'selected':''}>${c.icon} ${c.label}</option>`).join('')}
-            </select>
+        <!-- Donut -->
+        <div style="position:relative;width:140px;height:140px;flex-shrink:0">
+          <div style="width:140px;height:140px;border-radius:50%;background:conic-gradient(${tGrad});box-shadow:0 4px 20px rgba(0,0,0,.12)"></div>
+          <div style="position:absolute;inset:26px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 2px 6px rgba(0,0,0,.08)">
+            <span style="font-size:24px;font-weight:800;color:var(--txt);letter-spacing:-1px;line-height:1">${done}</span>
+            <span style="font-size:9px;color:var(--txt3);font-weight:600;margin-top:1px">of ${tot}</span>
+            <span style="font-size:8px;color:#006644;font-weight:700;text-transform:uppercase;letter-spacing:.04em;margin-top:2px">complete</span>
           </div>
         </div>
-        <div class="g2">
-          <div>
-            <label class="flbl">Priority</label>
-            <select id="fm-pri" class="fi">
-              ${PRI.map(p=>`<option value="${p.id}" ${(t?.priority||'medium')===p.id?'selected':''}>${p.label}</option>`).join('')}
-            </select>
-          </div>
-          <div>
-            <label class="flbl">Status</label>
-            <select id="fm-status" class="fi">
-              ${STS.map(s=>`<option value="${s.id}" ${(t?.status||'todo')===s.id?'selected':''}>${s.label}</option>`).join('')}
-            </select>
-          </div>
+        <div style="margin-top:12px;text-align:center">
+          <div style="font-size:28px;font-weight:800;color:${crClr};letter-spacing:-1px">${cr}%</div>
+          <div style="font-size:11px;color:var(--txt2);font-weight:600">Completion Rate</div>
+          <div style="height:4px;background:#EBECF0;border-radius:2px;margin-top:6px;width:80px"><div style="height:100%;width:${cr}%;background:${crClr};border-radius:2px;transition:width 1s"></div></div>
         </div>
-        <div>
-          <label class="flbl">🟢 Planned Start</label>
-          <div class="g2">
-            <input id="fm-sdate" type="date" class="fi" value="${t?.startDate||''}"/>
-            <input id="fm-stime" type="time" class="fi" value="${t?.startTime||''}"/>
-          </div>
-          <span style="font-size:11px;color:var(--txt3);margin-top:5px;display:block">⚠️ Alert fires if not started by this time</span>
-        </div>
-        <div>
-          <label class="flbl">📅 Due Date &amp; Time</label>
-          <div class="g2">
-            <input id="fm-ddate" type="date" class="fi" value="${t?.dueDate||''}"/>
-            <input id="fm-dtime" type="time" class="fi" value="${t?.dueTime||''}"/>
-          </div>
-          <span style="font-size:11px;color:var(--txt3);margin-top:5px;display:block">🔴 Alert fires if not completed by this time</span>
-        </div>
-        <div>
-          <label class="flbl">Notes</label>
-          <textarea id="fm-notes" class="fi" rows="2" placeholder="Any additional context…" style="resize:vertical">${esc(t?.notes||'')}</textarea>
-        </div>
-        <button data-action="saveTask" style="background:${adhocMode?'linear-gradient(135deg,#F59A3A,#E98A2C)':'linear-gradient(135deg,#0072EC,#0058C7)'};color:#fff;border:none;border-radius:var(--r8);padding:13px;font-size:14px;font-weight:700;cursor:pointer;width:100%;box-shadow:${adhocMode?'0 4px 14px rgba(233,138,44,.35)':'0 4px 14px rgba(0,114,236,.35)'}">
-          ${t?'💾  Save Changes':adhocMode?'⚡  Add Adhoc Task':'➕  Add Task'}
-        </button>
       </div>
     </div>
-  </div>`;
-}
 
-// ── EVENT DELEGATION ────────────────────────────────────────────────────────
-document.addEventListener('click',function(e){
-  if(e.target.dataset.overlay==='form'){showForm=false;editId=null;adhocMode=false;render();return;}
-  const btn=e.target.closest('[data-action]');if(!btn)return;
-  const{action,id,view:v,aid}=btn.dataset;
-  switch(action){
-    case 'openAdd':     showForm=true;adhocMode=false;editId=null;render();break;
-    case 'openAdhoc':   showForm=true;adhocMode=true;editId=null;render();break;
-    case 'closeForm':   showForm=false;editId=null;adhocMode=false;render();break;
-    case 'saveTask':    saveTask();break;
-    case 'editTask':    editTask(id);break;
-    case 'delTask':     delTask(id);break;
-    case 'setView':     view=v;render();break;
-    case 'saveConfig':  saveConfig();break;
-    case 'localMode':   cfg.user=document.getElementById('cfg-user')?.value||'Nikita';cfg._local=true;lsSave('dqa_cfg',cfg);tasks=lsLoad('dqa_tasks',[]);render();break;
-    case 'resetCfg':    if(confirm('Switch user or reconfigure GitHub?')){cfg={owner:'',repo:'',pat:'',user:'Nikita'};lsSave('dqa_cfg',cfg);render();}break;
-    case 'refreshTasks':loadTasks();break;
-    case 'clearFilters':fSt='all';fCat='all';render();break;
-    case 'enBrowser':   if('Notification' in window)Notification.requestPermission().then(()=>render());break;
-    case 'dlHTML':      dlHTML();break;
-    case 'dimToast':    toastArr=toastArr.filter(x=>String(x.aid)!==String(aid));renderToasts();break;
-  }
-});
-document.addEventListener('change',function(e){
-  const el=e.target;
-  if(el.dataset.filter==='status'){fSt=el.value;render();}
-  else if(el.dataset.filter==='cat'){fCat=el.value;render();}
-  else if(el.dataset.action==='updSt'){updSt(el.dataset.id,el.value);}
-});
+    <!-- Workload stacked bars (Image 1 style) -->
+    <div class="wg">
+      <div class="wg-hdr" style="background:#E65100">
+        <span class="wg-ttl">📈 Workload</span>
+      </div>
+      <div class="wg-body" style="padding:12px">
+        <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+          ${[['Completed','#006644'],['In Progress','#0052CC'],['Remaining','#DFE1E6']].map(([l,c])=>`<div style="display:flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:var(--txt2)"><span class="ldot" style="background:${c}"></span>${l}</div>`).join('')}
+        </div>
+        ${ts.map(m=>{const dP=pct(m.done,m.total||1),iP=pct(m.inP,m.total||1),rP=100-dP-iP;return`<div style="margin-bottom:13px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px"><div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600">${av(m.name,18)} ${m.name}</div><span style="font-size:10px;color:var(--txt3)">${m.total}</span></div>
+          <div class="sbar">${m.done>0?`<div class="sbar-s" style="width:${dP}%;background:#006644"></div>`:''}${m.inP>0?`<div class="sbar-s" style="width:${iP}%;background:#0052CC"></div>`:''}${m.todo>0?`<div class="sbar-s" style="width:${rP}%;background:#DFE1E6"></div>`:''}</div>
+          <div style="display:flex;justify-content:space-between;margin-top:3px;font-size:9px;font-weight:600"><span style="color:#006644">${m.done} done</span><span style="color:#0052CC">${m.inP} active</span><span style="color:#97A0AF">${m.todo} todo</span></div>
+        </div>`;}).join('')}
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ Row C: Category | Priority bars | At-Risk ══ -->
+  <div style="display:grid;grid-template-columns:1.15fr 1fr .85fr;gap:12px">
+
+    <!-- Category (Image 1: Time widget style) -->
+    <div class="wg">
+      <div class="wg-hdr" style="background:#4527A0">
+        <span class="wg-ttl">📁 By Category</span>
+        <span class="wg-sub">${catBars.length} active</span>
+      </div>
+      <div class="wg-body" style="padding:12px 14px">
+        ${catBars.length===0?`<div style="text-align:center;padding:24px;color:var(--txt3);font-size:12px">No tasks</div>`:catBars.map(d=>`
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;padding:3px 5px;border-radius:2px;transition:.08s;cursor:default" onmouseenter="this.style.background='#F4F5F7'" onmouseleave="this.style.background=''">
+          <span style="font-size:11px;color:var(--txt2);min-width:105px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(d.label)}</span>
+          <div style="flex:1;height:9px;background:#EBECF0;border-radius:3px;overflow:hidden"><div class="ifil" style="height:100%;width:${pct(d.value,mc)}%;background:${d.color}"></div></div>
+          <span style="font-size:12px;font-weight:800;color:${d.color};min-width:18px;text-align:right">${d.value}</span>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <!-- Priority distribution (Image 1: Cost widget style) -->
+    <div class="wg">
+      <div class="wg-hdr" style="background:#880E4F">
+        <span class="wg-ttl">🎯 Priority & Status</span>
+      </div>
+      <div class="wg-body" style="padding:12px 14px">
+        <div style="font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Per member</div>
+        <div class="vbar-area" style="margin-bottom:8px;padding:0 4px">
+          ${ts.map(m=>{const mh=tasks.filter(t=>t.owner===m.name&&t.priority==='high').length,mm=tasks.filter(t=>t.owner===m.name&&t.priority==='medium').length,ml=tasks.filter(t=>t.owner===m.name&&t.priority==='low').length;const mx=Math.max(...ts.map(x=>x.total),1);return`<div class="vbar-col">
+            <div class="vbar-stack">
+              <div class="vbar-s" style="height:${(mh/mx)*62}px;background:#DE350B;border-radius:2px 2px 0 0"></div>
+              <div class="vbar-s" style="height:${(mm/mx)*62}px;background:#FF8B00"></div>
+              <div class="vbar-s" style="height:${(ml/mx)*62}px;background:#00875A;border-radius:0 0 2px 2px"></div>
+            </div>
+            <span style="font-size:9px;font-weight:700;color:var(--txt2)">${m.name.slice(0,3)}</span>
+            <span style="font-size:9px;color:var(--txt3)">${m.total}</span>
+          </div>`;}).join('')}
+        </div>
+        <div style="display:flex;gap:10px;margin-bottom:10px">
+          ${[['High','#DE350B'],['Med','#FF8B00'],['Low','#00875A']].map(([l,c])=>`<div style="display:flex;align-items:center;gap:3px;font-size:10px;font-weight:600;color:var(--txt2)"><span class="ldot" style="background:${c};border-radius:1px"></span>${l}</div>`).join('')}
+        </div>
+        <div style="border-top:1px solid var(--border);padding-top:10px">
+          ${[['High',tasks.filter(t=>t.priority==='high').length,'#DE350B'],['Medium',tasks.filter(t=>t.priority==='medium').length,'#FF8B00'],['Low',tasks.filter(t=>t.priority==='low').length,'#00875A']].map(([l,v,c])=>`<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px"><span style="font-size:11px;color:var(--txt2);min-width:50px">${l}</span><div class="ibar" style="flex:1"><div class="ifil" style="width:${pct(v,tot||1)}%;background:${c}"></div></div><span style="font-size:11px;font-weight:800;color:${c};min-width:16px;text-align:right">${v}</span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- At-Risk (Image 1: Workload overflow style) -->
+    <div class="wg">
+      <div class="wg-hdr" style="background:#B71C1C">
+        <span class="wg-ttl">⚠️ At-Risk</span>
+        <span style="background:rgba(255,255,255,.2);border-radius:10px;padding:1px 8px;font-size:10px;font-weight:700;color:#fff">${atR.length}</span>
+      </div>
+      <div class="wg-body" style="padding:0">
+        ${atR.length===0?`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;height:100%"><div style="font-size:28px;margin-bottom:8px">✅</div><div style="font-weight:700;font-size:13px;color:#006644">All on track!</div></div>`:
+        `<div class="risk-grid risk-hdr"><div class="risk-cell">Task</div><div class="risk-cell">Owner</div><div class="risk-cell">Due</div><div class="risk-cell">Status</div></div>
+        ${atR.slice(0,7).map((t,i)=>{const ov=isOv(t),dis=isDis(t);return`<div class="risk-grid risk-row" style="background:${i%2===0?'#fff':'#FAFAFA'}">
+          <div class="risk-cell" style="font-weight:600;font-size:12px">${esc(t.title)}</div>
+          <div class="risk-cell" style="display:flex;align-items:center;gap:4px">${t.owner?av(t.owner,16):''}<span style="font-size:11px;color:var(--txt2)">${esc(t.owner||'—')}</span></div>
+          <div class="risk-cell" style="font-size:11px;color:${ov?'#DE350B':'var(--txt2)'}">${t.dueDate?fdt(t.dueDate,t.dueTime):'—'}</div>
+          <div class="risk-cell">${ov?`<span class="d-badge" style="color:#BF2600;background:#FFEBE6;border-color:#FFBDAD">🔴 OD</span>`:''}${dis?`<span class="d-badge" style="color:#974F0C;background:#FFFAE6;border-color:#FFE380">⚠ DIS</span>`:''}</div>
+        </div>`;}).join('')}
+        ${atR.length>7?`<div style="padding:7px;text-align:center;font-size:10px;color:var(--txt3);border-top:1px solid var(--border)">+${atR.length-7} more</div>`:''}`}
+      </div>
+    </div>
+  </div>
+</div>`;}
+
+// ── SETUP ──────────────────────────────────────────────────────────────────
+function renderSetup(){return`<div style="min-height:100vh;display:flex"><div style="width:380px;flex-shrink:0;background:linear-gradient(160deg,#0747A6,#0052CC 60%,#0065FF);padding:44px 36px;display:flex;flex-direction:column"><div style="display:flex;align-items:center;gap:10px;margin-bottom:44px"><div class="sb-icon" style="width:32px;height:32px">📌</div><div><div style="color:#fff;font-size:14px;font-weight:700">DQA Task Tracker</div><div style="color:rgba(255,255,255,.45);font-size:11px">Project44 · Managed Services India</div></div></div><h1 style="color:#fff;font-size:24px;font-weight:700;line-height:1.3;margin-bottom:14px">Task management for DQA teams.</h1><p style="color:rgba(255,255,255,.6);font-size:13px;line-height:1.75;margin-bottom:28px">GitHub-synced Kanban board, SharePoint-style task list, and a live manager dashboard.</p><div style="display:flex;flex-direction:column;gap:10px;flex:1">${[['📊','Dashboard','KPIs, charts & at-risk summary'],['🗂','Team Kanban','JIRA-style swimlane board'],['🔔','Alerts','Missed deadlines & disruptions'],['⚡','Quick Add','Add tasks instantly — no forms']].map(([i,t,s])=>`<div style="display:flex;gap:10px;align-items:flex-start"><div style="width:30px;height:30px;border-radius:3px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">${i}</div><div><div style="color:#fff;font-weight:600;font-size:13px">${t}</div><div style="color:rgba(255,255,255,.5);font-size:11px">${s}</div></div></div>`).join('')}</div></div>
+<div style="flex:1;display:flex;align-items:center;justify-content:center;padding:36px;background:#F0F2F5"><div style="background:#fff;border-radius:3px;padding:32px;width:100%;max-width:360px;box-shadow:0 8px 32px rgba(9,30,66,.16)"><h2 style="font-size:18px;font-weight:700;margin-bottom:6px">Connect workspace</h2><p style="font-size:13px;color:var(--txt2);margin-bottom:22px">Enter GitHub details to sync across the team.</p><div style="display:flex;flex-direction:column;gap:14px"><div class="fg"><label class="flbl">Your Name</label><select id="cfg-user" class="fi">${TEAM.map(t=>`<option value="${t}" ${cfg.user===t?'selected':''}>${t}</option>`).join('')}</select></div><div class="fg"><label class="flbl">GitHub Owner</label><input id="cfg-owner" class="fi" value="${esc(cfg.owner)}" placeholder="NikitaP44"/></div><div class="fg"><label class="flbl">Repository</label><input id="cfg-repo" class="fi" value="${esc(cfg.repo)}" placeholder="dqa-task-tracker"/></div><div class="fg"><label class="flbl">Personal Access Token</label><input id="cfg-pat" type="password" class="fi" value="${esc(cfg.pat)}" placeholder="ghp_..."/><span style="font-size:11px;color:var(--txt3);margin-top:3px;display:block">Needs Contents: Read &amp; Write</span></div><button data-action="saveConfig" style="background:#0052CC;color:#fff;border:none;border-radius:3px;padding:10px;font-size:14px;font-weight:700;cursor:pointer;width:100%">Connect →</button><button data-action="localMode" style="background:transparent;color:#0052CC;border:2px solid var(--border);border-radius:3px;padding:8px;font-size:13px;cursor:pointer;width:100%">Continue locally</button></div></div></div></div>`;}
+
+// ── DRAWER ─────────────────────────────────────────────────────────────────
+function renderDrawer(){const t=editId?tasks.find(x=>x.id===editId):null;const defOwner=t?.owner||cfg.user;return`<div data-overlay="form" class="drawer-bg"><div class="drawer"><div class="drawer-hdr" style="background:${adhocMode?'#FF5630':'#0052CC'}"><div style="display:flex;justify-content:space-between;align-items:center"><div><div style="color:rgba(255,255,255,.7);font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em">${adhocMode?'Quick Capture':t?'Edit Issue':'New Issue'}</div><div style="color:#fff;font-size:16px;font-weight:700;margin-top:2px">${adhocMode?'⚡ Adhoc':t?'✏️ Edit Task':'➕ Create Task'}</div></div><button data-action="closeForm" style="border:none;background:rgba(255,255,255,.15);border-radius:3px;width:30px;height:30px;cursor:pointer;color:#fff;font-size:18px;display:flex;align-items:center;justify-content:center">×</button></div></div>
+<div class="drawer-body"><div style="display:flex;flex-direction:column;gap:15px"><div class="fg"><label class="flbl">Task Title *</label><input id="fm-title" class="fi" value="${esc(t?.title||'')}" placeholder="What needs to be done?"/></div><div class="fg2"><div class="fg"><label class="flbl">Assigned To</label><select id="fm-owner" class="fi">${TEAM.map(m=>`<option value="${m}" ${(t?.owner||cfg.user)===m?'selected':''}>${m}</option>`).join('')}</select></div><div class="fg"><label class="flbl">Category</label><select id="fm-cat" class="fi">${CAT.map(c=>`<option value="${c.id}" ${(t?.category||'adhoc')===c.id?'selected':''}>${c.icon} ${c.label}</option>`).join('')}</select></div></div><div class="fg2"><div class="fg"><label class="flbl">Priority</label><select id="fm-pri" class="fi">${PRI.map(p=>`<option value="${p.id}" ${(t?.priority||'medium')===p.id?'selected':''}>${p.label}</option>`).join('')}</select></div><div class="fg"><label class="flbl">Status</label><select id="fm-status" class="fi">${STS.map(s=>`<option value="${s.id}" ${(t?.status||'todo')===s.id?'selected':''}>${s.label}</option>`).join('')}</select></div></div><div style="background:#F4F5F7;border-radius:3px;padding:12px"><div style="font-size:10px;font-weight:700;color:var(--txt2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">Timeline</div><div class="fg2"><div class="fg"><label class="flbl">🟢 Start Date</label><input id="fm-sdate" type="date" class="fi" value="${t?.startDate||''}"/></div><div class="fg"><label class="flbl">Start Time</label><input id="fm-stime" type="time" class="fi" value="${t?.startTime||''}"/></div></div><div class="fg2" style="margin-top:10px"><div class="fg"><label class="flbl">📅 Due Date</label><input id="fm-ddate" type="date" class="fi" value="${t?.dueDate||''}"/></div><div class="fg"><label class="flbl">Due Time</label><input id="fm-dtime" type="time" class="fi" value="${t?.dueTime||''}"/></div></div><div style="font-size:11px;color:var(--txt3);margin-top:7px">Alerts fire when deadlines are missed</div></div><div class="fg"><label class="flbl">Notes</label><textarea id="fm-notes" class="fi" rows="3" placeholder="Context, links, references…" style="resize:vertical">${esc(t?.notes||'')}</textarea></div></div></div>
+<div class="drawer-foot"><button data-action="saveTask" style="width:100%;background:${adhocMode?'#FF5630':'#0052CC'};color:#fff;border:none;border-radius:3px;padding:11px;font-size:14px;font-weight:700;cursor:pointer">${t?'Save Changes':adhocMode?'⚡ Add Adhoc':'Create Task'}</button></div></div></div>`;}
+
+// ── EVENTS ─────────────────────────────────────────────────────────────────
+document.addEventListener('click',function(e){if(e.target.dataset.overlay==='form'){showForm=false;editId=null;adhocMode=false;render();return;}const btn=e.target.closest('[data-action]');if(!btn)return;const{action,id,view:v,aid,val,lane}=btn.dataset;switch(action){case 'openAdd':showForm=true;adhocMode=false;editId=null;render();break;case 'openAdhoc':showForm=true;adhocMode=true;editId=null;render();break;case 'closeForm':showForm=false;editId=null;adhocMode=false;render();break;case 'saveTask':saveTask();break;case 'quickAdd':quickAdd();break;case 'editTask':editTask(id);break;case 'delTask':delTask(id);break;case 'setView':view=v;render();break;case 'stFilter':stFilter=val;render();break;case 'toggleLane':if(collapsedLanes.has(lane))collapsedLanes.delete(lane);else collapsedLanes.add(lane);render();break;case 'saveConfig':saveConfig();break;case 'localMode':cfg.user=document.getElementById('cfg-user')?.value||'Nikita';cfg._local=true;lsSave('dqa_cfg',cfg);tasks=lsLoad('dqa_tasks',[]);render();break;case 'resetCfg':if(confirm('Switch user?')){cfg={owner:'',repo:'',pat:'',user:'Nikita'};lsSave('dqa_cfg',cfg);render();}break;case 'refreshTasks':gitFailed=false;errShown=false;loadTasks();break;case 'manualSync':gitFailed=false;errShown=false;loadTasks();break;case 'clearFilters':fCat='all';stFilter='all';render();break;case 'enBrowser':if('Notification' in window)Notification.requestPermission().then(()=>render());break;case 'dlHTML':dlHTML();break;case 'dimToast':toastArr=toastArr.filter(x=>String(x.aid)!==String(aid));renderToasts();break;}});
+document.addEventListener('change',function(e){const el=e.target;if(el.dataset.filter==='cat'){fCat=el.value;render();}else if(el.dataset.action==='updSt'){updSt(el.dataset.id,el.value);}});
+document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.id==='qa-input'){e.preventDefault();quickAdd();}});
 
 // ── DOWNLOAD ───────────────────────────────────────────────────────────────
-function dlHTML(){
-  const sty=document.getElementById('ss')?.textContent||'';
-  const scr=document.getElementById('sc')?.textContent||'';
-  const html='<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>DQA Task Tracker — Project44</title>\n<style id="ss">'+sty+'</style>\n</head>\n<body>\n<div id="toasts" style="position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;max-width:360px;pointer-events:none"></div>\n<div id="root"></div>\n<script id="sc">'+scr+'<\/script>\n</body>\n</html>';
-  const blob=new Blob([html],{type:'text/html'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='DQA_TaskTracker.html';
-  document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);
-}
+function dlHTML(){const sty=document.getElementById('ss')?.textContent||'';const scr=document.getElementById('sc')?.textContent||'';const html='<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1">\n<title>DQA Task Tracker — Project44</title>\n<style id="ss">'+sty+'</style>\n</head>\n<body>\n<div id="toasts" style="position:fixed;top:12px;right:12px;z-index:9999;display:flex;flex-direction:column;gap:6px;max-width:340px;pointer-events:none"></div>\n<div id="root"></div>\n<script id="sc">'+scr+'<\/script>\n</body>\n</html>';const blob=new Blob([html],{type:'text/html'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='DQA_TaskTracker.html';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);}
 
 // ── INIT ───────────────────────────────────────────────────────────────────
 if(cfg.pat){loadTasks();}else{tasks=lsLoad('dqa_tasks',[]);render();}
